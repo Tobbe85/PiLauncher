@@ -1,16 +1,48 @@
-# piLauncherNext
-This is a fork, and spiritual succesor of [lvonasek's piLauncher](https://github.com/lvonasek/QuestPiLauncher). An alternative launcher for Pico VR headsets (might also work in Oculus) supporting official/sideloaded apps and games.
+## 🚀 My Vision of PiLauncher
 
-[Builds](https://github.com/Veticia/binaries/tree/main/releases)
+The original PiLauncher was already close to perfect — sleek, functional, and lightweight.  
+Still, I felt a few features were missing for users like myself.  
+So I decided to expand on the original and add some useful enhancements.
 
-![Screenshot](https://github.com/Veticia/PiLauncherNext/blob/main/SCREENSHOT.png?raw=true)
+---
 
-## Compile the launcher
-* Open **Launcher** in Android Studio
-* Ensure USB debugging is enabled on your headset
-* Add your signing key settings to ./App/build.gradle (or remove it completely in ./build.gradle)
-* Hit play button in Android Studio
+### 🆕 What's New?
 
-## Similar Projects
-* [DreamGrid](https://github.com/basti564/DreamGrid), a more Oculus-centric fork of piLauncher
-* [PicoZen](https://github.com/barnabwhy/PicoZen), launcher made to look more like a native Pico app
+#### 🎮 In the **Detailed Game View** (long-press on a game):
+
+- 📦 Displays the **package name**
+- 🔢 Shows the **version number**
+- 🧱 Indicates the **game engine**
+- 📁 Displays the **game size**
+- 🖼️ Added a **"Game Information"** button  
+  → Opens a page with description and screenshots  
+- ❌ Added a **"Delete Game"** button  
+  → Uninstall games directly from PiLauncher
+
+---
+
+#### 🏠 In the **Main Launcher View**:
+
+- 🕶️ Shows the **Pico model** in use
+- ⚙️ Displays the **Pico OS version**
+- 🤖 Shows the **Android version**
+- 💾 Displays **available storage space**
+- 🖼️ Fetches the needed **icons for Meta, Pico and Sidequest Apps in landscape, square and rounded**
+- 🖼️ Fallback app icons matches with your choosed icon style
+
+---
+
+🔧 More features may be coming — stay tuned!
+
+### ‼️Got any suggestions? Don’t be shy, just type them [here](https://github.com/Tobbe85/PiLauncher/issues)‼️
+
+![Screenshot](https://github.com/Tobbe85/PiLauncher/blob/main/MainLauncher.jpeg?raw=true)
+![Screenshot](https://github.com/Tobbe85/PiLauncher/blob/main/AppDetails.jpeg?raw=true)
+
+### These Icon Styles are available:
+
+<p float="left">
+  <img src="https://github.com/Tobbe85/PiLauncher/blob/main/Launcher/App/src/main/res/drawable-mdpi/com_valvesoftware_alyx_banners.png?raw=true" width="355" />
+  <img src="https://github.com/Tobbe85/PiLauncher/blob/main/Launcher/App/src/main/res/drawable-mdpi/com_valvesoftware_alyx_icons.png?raw=true" width="200" />
+  <img src="https://github.com/Tobbe85/PiLauncher/blob/main/Launcher/App/src/main/res/drawable-mdpi/com_valvesoftware_alyx_tenaldo.png?raw=true" width="200" />
+</p>
