@@ -30,7 +30,7 @@
             android:visibility="gone" />
     </RelativeLayout>
 
-    <com.veticia.piLauncherNext.ui.TextView
+    <com.tobbe.pilauncher.ui.TextView
         android:id="@+id/textLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

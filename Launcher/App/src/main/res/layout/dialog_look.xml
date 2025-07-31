@@ -116,6 +116,8 @@
                 android:id="@+id/style0"
                 android:layout_width="138dp"
                 android:layout_height="138dp"
+                android:background="#00FFFFFF"
+                android:backgroundTint="#00FFFFFF"
                 android:padding="5dp"
                 android:src="@drawable/com_valvesoftware_alyx_banners" />
 
@@ -123,6 +125,8 @@
                 android:id="@+id/style1"
                 android:layout_width="138dp"
                 android:layout_height="138dp"
+                android:background="#00FFFFFF"
+                android:backgroundTint="#00FFFFFF"
                 android:padding="5dp"
                 android:src="@drawable/com_valvesoftware_alyx_icons" />
 
@@ -130,6 +134,8 @@
                 android:id="@+id/style2"
                 android:layout_width="138dp"
                 android:layout_height="138dp"
+                android:background="#00FFFFFF"
+                android:backgroundTint="#00FFFFFF"
                 android:padding="5dp"
                 android:src="@drawable/com_valvesoftware_alyx_tenaldo" />
         </LinearLayout>
@@ -235,6 +241,14 @@
                 android:textSize="16sp"
                 android:trackTint="@color/switch_track_color" />
         </LinearLayout>
+
+        <Button
+            android:id="@+id/clear_cache"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#FF0000"
+            android:text="@string/clear_cache"
+            android:textColor="#000000" />
 
     </LinearLayout>
 

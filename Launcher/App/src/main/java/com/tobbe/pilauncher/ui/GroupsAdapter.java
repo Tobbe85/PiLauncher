@@ -1,4 +1,4 @@
-package com.veticia.piLauncherNext.ui;
+package com.tobbe.pilauncher.ui;
 
 import android.app.AlertDialog;
 import android.graphics.Color;
@@ -11,9 +11,9 @@ import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.veticia.piLauncherNext.MainActivity;
-import com.veticia.piLauncherNext.R;
-import com.veticia.piLauncherNext.SettingsProvider;
+import com.tobbe.pilauncher.MainActivity;
+import com.tobbe.pilauncher.R;
+import com.tobbe.pilauncher.SettingsProvider;
 
 import java.util.HashMap;
 import java.util.HashSet;

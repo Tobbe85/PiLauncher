@@ -21,8 +21,8 @@ android {
         minSdkVersion 23
         //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 23
-        versionCode 111
-        versionName "1.1.1"
+        versionCode 20
+        versionName "2.0"
         signingConfig signingConfigs.release
     }
 
@@ -41,10 +41,11 @@ android {
         disable 'Accessibility'
     }
     buildToolsVersion '33.0.0'
-    namespace 'com.veticia.piLauncherNext'
+    namespace 'com.tobbe.pilauncher'
 }
 
 dependencies {
+    implementation 'androidx.browser:browser:1.3.0'
     implementation 'com.github.bkhezry:android-image-picker:1.4.0'
     implementation 'com.github.stephenc.java-iso-tools:loopy-vfs:1.2.2'
     implementation 'com.github.Veticia.MarkdownView:library:a17137d215'

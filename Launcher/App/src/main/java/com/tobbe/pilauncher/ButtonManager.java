@@ -1,4 +1,4 @@
-package com.veticia.piLauncherNext;
+package com.tobbe.pilauncher;
 
 import android.accessibilityservice.AccessibilityService;
 import android.content.Context;

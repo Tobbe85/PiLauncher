@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">-爪 Launcher-</string>
+    <string name="app_name">PiLauncher</string>
     <string name="default_apps_group">Aplikace</string>
     <string name="add_group">Přidat skupinu</string>
     <string name="delete_group">Smazat skupinu</string>
@@ -8,6 +8,9 @@
     <string name="app_details">Podrobnosti aplikace</string>
     <string name="apps_hidden">Skryté</string>
 
+    <string name="delete_app">Odinstalovat</string>
+    <string name="request_permission">Klikněte zde pro udělení oprávnění</string>
+    <string name="game_info">Informace o hře</string>
     <string name="settings_apps_enable">Povolit úpravy</string>
     <string name="settings_apps_disable">Zakázat úpravy</string>
     <string name="settings_device">Nastavení zařízení</string>
@@ -40,4 +43,5 @@
         <item>↓ Datum instalace</item>
         <item>↑ Datum instalace</item>
     </string-array>
+    <string name="clear_cache">Vymazat mezipaměť ikon</string>
 </resources>

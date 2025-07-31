@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">-爪 Launcher-</string>
+    <string name="app_name">PiLauncher</string>
     <string name="default_apps_group">Aplicativos</string>
     <string name="add_group">Adicionar groupo</string>
     <string name="delete_group">Deletar groupo</string>
@@ -8,6 +8,9 @@
     <string name="app_details">Detalhes do aplicativo</string>
     <string name="apps_hidden">Ocultos</string>
 
+    <string name="delete_app">Desinstalar</string>
+    <string name="request_permission">Clique aqui para conceder permissão</string>
+    <string name="game_info">Informações do jogo</string>
     <string name="settings_apps_enable">Habilitar edição</string>
     <string name="settings_apps_disable">Desabilitar edição</string>
     <string name="settings_device">Configurações do dispositivo</string>
@@ -40,4 +43,5 @@
         <item>↓ Data de instalação</item>
         <item>↑ Data de instalação</item>
     </string-array>
+    <string name="clear_cache">Limpar cache de ícones</string>
 </resources>

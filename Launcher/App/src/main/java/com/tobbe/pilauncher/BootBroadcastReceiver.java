@@ -1,7 +1,7 @@
-package com.veticia.piLauncherNext;
+package com.tobbe.pilauncher;
 
-import static com.veticia.piLauncherNext.MainActivity.sharedPreferences;
-import static com.veticia.piLauncherNext.SettingsProvider.KEY_AUTORUN;
+import static com.tobbe.pilauncher.MainActivity.sharedPreferences;
+import static com.tobbe.pilauncher.SettingsProvider.KEY_AUTORUN;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

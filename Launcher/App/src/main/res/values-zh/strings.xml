@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">-爪 启动器-</string>
+    <string name="app_name">PiLauncher</string>
     <string name="default_apps_group">应用程序</string>
     <string name="add_group">添加分组</string>
     <string name="delete_group">删除分组</string>
@@ -8,6 +8,9 @@
     <string name="app_details">应用详情</string>
     <string name="apps_hidden">隐藏</string>
 
+    <string name="delete_app">卸载</string>
+    <string name="request_permission">点击这里授予权限</string>
+    <string name="game_info">游戏信息</string>
     <string name="settings_apps_enable">启用编辑</string>
     <string name="settings_apps_disable">禁用编辑</string>
     <string name="settings_device">设备设置</string>
@@ -40,4 +43,5 @@
         <item>↓ 安装日期</item>
         <item>↑ 安装日期</item>
     </string-array>
+    <string name="clear_cache">清除缓存图标</string>
 </resources>

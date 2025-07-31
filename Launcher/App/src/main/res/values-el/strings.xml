@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">-爪 Launcher-</string>
+    <string name="app_name">PiLauncher</string>
     <string name="default_apps_group">Εφαρμογές</string>
     <string name="add_group">Προσθήκη ομάδας</string>
     <string name="delete_group">Διαγραφή ομάδας</string>
@@ -8,6 +8,9 @@
     <string name="app_details">Λεπτομέρειες εφαρμογής</string>
     <string name="apps_hidden">Κρυμμένος</string>
 
+    <string name="delete_app">Απεγκατάσταση</string>
+    <string name="request_permission">Κάντε κλικ εδώ για να δώσετε άδεια</string>
+    <string name="game_info">Πληροφορίες παιχνιδιού</string>
     <string name="settings_apps_enable">Ενεργοποιήστε την επεξεργασία</string>
     <string name="settings_apps_disable">Απενεργοποιήστε την επεξεργασία</string>
     <string name="settings_device">Ρυθμίσεις συσκευής</string>
@@ -40,4 +43,5 @@
         <item>↓ Ημερομηνία εγκατάστασης</item>
         <item>↑ Ημερομηνία εγκατάστασης</item>
     </string-array>
+    <string name="clear_cache">Εκκαθάριση της προσωρινής μνήμης εικονιδίων</string>
 </resources>

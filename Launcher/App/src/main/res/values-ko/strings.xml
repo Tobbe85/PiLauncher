@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">-爪 런처-</string>
+    <string name="app_name">PiLauncher</string>
     <string name="default_apps_group">앱</string>
     <string name="add_group">그룹 추가</string>
     <string name="delete_group">그룹 삭제</string>
@@ -8,6 +8,9 @@
     <string name="app_details">앱 세부정보</string>
     <string name="apps_hidden">숨겨진</string>
 
+    <string name="delete_app">삭제</string>
+    <string name="request_permission">권한을 부여하려면 여기를 클릭하세요</string>
+    <string name="game_info">게임 정보</string>
     <string name="settings_apps_enable">편집 활성화</string>
     <string name="settings_apps_disable">편집 비활성화</string>
     <string name="settings_device">기기 설정</string>
@@ -40,4 +43,5 @@
         <item>↓ 설치 날짜</item>
         <item>↑ 설치 날짜</item>
     </string-array>
+    <string name="clear_cache">아이콘 캐시 삭제</string>
 </resources>

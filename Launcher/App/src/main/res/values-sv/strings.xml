@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">-爪 Launcher-</string>
+    <string name="app_name">PiLauncher</string>
     <string name="default_apps_group">Appar</string>
     <string name="add_group">Lägg till grupp</string>
     <string name="delete_group">Ta bort grupp</string>
@@ -8,6 +8,9 @@
     <string name="app_details">Appdetaljer</string>
     <string name="apps_hidden">Dold</string>
 
+    <string name="delete_app">Avinstallera</string>
+    <string name="request_permission">Klicka här för att ge tillstånd</string>
+    <string name="game_info">Spelinformation</string>
     <string name="settings_apps_enable">Tillåt redigering</string>
     <string name="settings_apps_disable">Stäng av redigering</string>
     <string name="settings_device">Enhetsinställningar</string>
@@ -40,4 +43,5 @@
         <item>↓ Installationsdatum</item>
         <item>↑ Installationsdatum</item>
     </string-array>
+    <string name="clear_cache">Rensa ikonens cache</string>
 </resources>

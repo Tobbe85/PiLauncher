@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">"-爪 ランチャー "</string>
+    <string name="app_name">"PiLauncher"</string>
     <string name="default_apps_group">アプリ</string>
     <string name="add_group">グループを追加</string>
     <string name="delete_group">グループを削除</string>
@@ -8,6 +8,9 @@
     <string name="app_details">アプリの詳細</string>
     <string name="apps_hidden">隠れた</string>
 
+    <string name="delete_app">アンインストール</string>
+    <string name="request_permission">許可を与えるにはこちらをクリックしてください</string>
+    <string name="game_info">ゲーム情報</string>
     <string name="settings_apps_enable">編集を有効に</string>
     <string name="settings_apps_disable">編集の無効化</string>
     <string name="settings_device">デバイスの設定</string>
@@ -40,4 +43,5 @@
         <item>↓ インストール日</item>
         <item>↑ インストール日</item>
     </string-array>
+    <string name="clear_cache">アイコンキャッシュをクリア</string>
 </resources>

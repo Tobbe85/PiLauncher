@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">-爪 Launcher-</string>
+    <string name="app_name">PiLauncher</string>
     <string name="default_apps_group">Sovellukset</string>
     <string name="add_group">Lisää ryhmä</string>
     <string name="delete_group">Poista ryhmä</string>
@@ -8,6 +8,9 @@
     <string name="app_details">Sovelluksen tiedot</string>
     <string name="apps_hidden">Piilotettu</string>
 
+    <string name="delete_app">Poista asennus</string>
+    <string name="request_permission">Klikkaa tästä myöntääksesi luvan</string>
+    <string name="game_info">Pelitiedot</string>
     <string name="settings_apps_enable">Salli muokkaus</string>
     <string name="settings_apps_disable">Estä muokkaus</string>
     <string name="settings_device">Laite asetukset</string>
@@ -40,4 +43,5 @@
         <item>↓ Asennuspäivämäärä</item>
         <item>↑ Asennuspäivämäärä</item>
     </string-array>
+    <string name="clear_cache">Tyhjennä kuvakevälimuisti</string>
 </resources>

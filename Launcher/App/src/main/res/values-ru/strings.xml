@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">-爪 Launcher-</string>
+    <string name="app_name">PiLauncher</string>
     <string name="default_apps_group">Приложения</string>
     <string name="add_group">Добавить группу</string>
     <string name="delete_group">Удалить группу</string>
@@ -8,6 +8,9 @@
     <string name="app_details">Сведения о приложении</string>
     <string name="apps_hidden">Скрытый</string>
 
+    <string name="delete_app">Деинсталляция</string>
+    <string name="request_permission">Нажмите здесь, чтобы дать разрешение</string>
+    <string name="game_info">Информация об игре</string>
     <string name="settings_apps_enable">Разрешить редактирование</string>
     <string name="settings_apps_disable">Отключить редактирование</string>
     <string name="settings_device">Настройки устройства</string>
@@ -39,4 +42,5 @@
         <item>↓ Дата установки</item>
         <item>↑ Дата установки</item>
     </string-array>
+    <string name="clear_cache">Очистить кэш значков</string>
 </resources>

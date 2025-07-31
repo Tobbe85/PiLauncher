@@ -1,4 +1,4 @@
-package com.veticia.piLauncherNext.platforms;
+package com.tobbe.pilauncher.platforms;
 
 import android.content.Context;
 import android.content.Intent;
@@ -7,7 +7,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.util.Log;
 
-import com.veticia.piLauncherNext.SettingsProvider;
+import com.tobbe.pilauncher.SettingsProvider;
 
 import java.util.ArrayList;
 

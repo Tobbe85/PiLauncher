@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" >
 
     <uses-feature android:name="oculus.software.handtracking" android:required="false" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" tools:ignore="ProtectedPermissions"/>
 
     <application
         android:icon="@drawable/ic_launcher"
@@ -24,7 +25,7 @@
         </receiver>
 
         <activity
-            android:name="com.veticia.piLauncherNext.MainActivity"
+            android:name="com.tobbe.pilauncher.MainActivity"
             android:launchMode="singleInstance"
             android:screenOrientation="landscape"
             android:configChanges="orientation|keyboardHidden"
@@ -37,7 +38,7 @@
         </activity>
 
         <service
-            android:name="com.veticia.piLauncherNext.ButtonManager"
+            android:name="com.tobbe.pilauncher.ButtonManager"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             android:exported="false">

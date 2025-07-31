@@ -1,4 +1,4 @@
-package com.veticia.piLauncherNext.ui;
+package com.tobbe.pilauncher.ui;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -9,7 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 
-import com.veticia.piLauncherNext.R;
+import com.tobbe.pilauncher.R;
 
 public class TextView extends androidx.appcompat.widget.AppCompatTextView {
 	private float strokeWidth;

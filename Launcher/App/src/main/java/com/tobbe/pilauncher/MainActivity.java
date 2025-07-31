@@ -1,5 +1,10 @@
-package com.veticia.piLauncherNext;
+package com.tobbe.pilauncher;
 
+import android.content.BroadcastReceiver;
+import android.content.IntentFilter;
+import android.os.Environment;
+import android.os.StatFs;
+import com.tobbe.pilauncher.ui.AppsAdapter;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -25,6 +30,7 @@ import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -34,12 +40,11 @@ import android.widget.TextView;
 
 import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.model.Image;
-import com.veticia.piLauncherNext.platforms.AbstractPlatform;
-import com.veticia.piLauncherNext.platforms.PSPPlatform;
-import com.veticia.piLauncherNext.platforms.VRPlatform;
-import com.veticia.piLauncherNext.ui.AppsAdapter;
-import com.veticia.piLauncherNext.ui.GroupsAdapter;
-import com.veticia.piLauncherNext.ui.SettingsGroup;
+import com.tobbe.pilauncher.platforms.AbstractPlatform;
+import com.tobbe.pilauncher.platforms.PSPPlatform;
+import com.tobbe.pilauncher.platforms.VRPlatform;
+import com.tobbe.pilauncher.ui.GroupsAdapter;
+import com.tobbe.pilauncher.ui.SettingsGroup;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -50,6 +55,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Locale;
 
 import br.tiagohm.markdownview.MarkdownView;
 import br.tiagohm.markdownview.css.InternalStyleSheet;
@@ -78,7 +84,7 @@ public class MainActivity extends Activity
     public static final String[] STYLES = {
             "banners",
             "icons",
-            "tenaldo_square"
+            "rounded"
     };
     private static final boolean DEFAULT_AUTORUN = true;
     public static final String EMULATOR_PACKAGE = "org.ppsspp.ppssppvr";
@@ -107,10 +113,30 @@ public class MainActivity extends Activity
         }
     }
 
+    public static String getSystemProperty(String key, String defaultValue) {
+        try {
+            Class<?> sp = Class.forName("android.os.SystemProperties");
+            return (String) sp.getMethod("get", String.class, String.class)
+                    .invoke(null, key, defaultValue);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
+    public String getStorageInfo(File path) {
+        StatFs stat = new StatFs(path.getPath());
+        return String.format(Locale.US, "Memory:  %.1f GB / %.1f GB",
+                stat.getAvailableBytes() / 1e9,
+                stat.getTotalBytes() / 1e9);
+    }
+
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+        if (AppsAdapter.fetch_indie != true) {
+            AppsAdapter.fetchIndieGameList();
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (AbstractPlatform.isMagicLeapHeadset()) {
@@ -169,6 +195,24 @@ public class MainActivity extends Activity
             }
             return true;
         });
+
+        TextView osTextView = findViewById(R.id.os_version);
+        String picoOsVersion = getSystemProperty("ro.pui.build.version", "?");
+        osTextView.setText("PICO OS:  " + picoOsVersion);
+
+        TextView osAndroidView = findViewById(R.id.android_version);
+        String osVersion = "Android:  " + Build.VERSION.RELEASE + " (SDK " + Build.VERSION.SDK_INT + ")";
+        osAndroidView.setText(osVersion);
+
+        TextView serialView = findViewById(R.id.model_number);
+        String devicename = getSystemProperty("sys.pxr.product.name", "?");
+        String modelnumber = getSystemProperty("sys.pxr.product.model", "?");
+        serialView.setText("Model:  " + devicename + "  [" + modelnumber + "]");
+
+        TextView sizeView = findViewById(R.id.size);
+        File internal = Environment.getDataDirectory();
+        String info = getStorageInfo(internal);
+        sizeView.setText(info);
 
         // Set sort button
         mSortField = AppsAdapter.SORT_FIELD.values()[sharedPreferences.getInt(SettingsProvider.KEY_SORT_FIELD, 0)];
@@ -246,7 +290,7 @@ public class MainActivity extends Activity
             lastUpdateCheck = System.currentTimeMillis();
             String string = "";
             try {
-                URL url = new URL("https://raw.githubusercontent.com/Veticia/binaries/main/latestPiLauncher");
+                URL url = new URL("https://raw.githubusercontent.com/Tobbe85/PiLauncher/main/version");
                 BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
                 StringBuilder stringBuilder = new StringBuilder();
                 String line;
@@ -272,6 +316,7 @@ public class MainActivity extends Activity
                 runOnUiThread(() -> update.setVisibility(View.VISIBLE));
             }
         }).start();
+
    }
 
     @Override
@@ -287,6 +332,7 @@ public class MainActivity extends Activity
     protected void onPause() {
         super.onPause();
         activityHasFocus = false;
+        unregisterReceiver(uninstallReceiver);
     }
 
     @Override
@@ -296,7 +342,8 @@ public class MainActivity extends Activity
 
         String[] permissions = {
                 Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+
         };
         boolean read = checkSelfPermission(permissions[0]) == PackageManager.PERMISSION_GRANTED;
         boolean write = checkSelfPermission(permissions[1]) == PackageManager.PERMISSION_GRANTED;
@@ -307,6 +354,12 @@ public class MainActivity extends Activity
         } else {
             requestPermissions(permissions, 0);
         }
+        if (AppsAdapter.fetch_indie != true) {
+            AppsAdapter.fetchIndieGameList();
+        }
+        IntentFilter filter = new IntentFilter(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addDataScheme("package");
+        registerReceiver(uninstallReceiver, filter);
     }
 
     private ImageView mSelectedImageView;
@@ -314,6 +367,14 @@ public class MainActivity extends Activity
     public void setSelectedImageView(ImageView imageView) {
         mSelectedImageView = imageView;
     }
+
+    private final BroadcastReceiver uninstallReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String packageName = intent.getData().getSchemeSpecificPart();
+            reloadUI();
+        }
+    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -463,8 +524,8 @@ public class MainActivity extends Activity
         css.addRule("body", "color: #FFF", "background: rgba(0,0,0,0);");
         mMarkdownView.addStyleSheet(css);
         mMarkdownView.setBackgroundColor(Color.TRANSPARENT);
-        mMarkdownView.loadMarkdownFromUrlFallback("https://raw.githubusercontent.com/Veticia/PiLauncherNext/main/CHANGELOG.md",
-            "**Couldn't load changelog. Check [here](https://github.com/Veticia/binaries/tree/main/releases) for the latest file.**");
+        mMarkdownView.loadMarkdownFromUrlFallback("https://raw.githubusercontent.com/Tobbe85/PiLauncher/main/CHANGELOG.md",
+            "**Couldn't load changelog. Check [here](https://github.com/Tobbe85/PiLauncher/releases/latest) for the latest file.**");
     }
 
     private void showSettingsLook() {
@@ -552,6 +613,17 @@ public class MainActivity extends Activity
                 }
             });
         }
+        //Clear Icon Cache
+        Button clearCacheButton = d.findViewById(R.id.clear_cache);
+
+        clearCacheButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AbstractPlatform.clearAllIcons(MainActivity.this);
+                reloadUI();
+            }
+        });
+
         int style = sharedPreferences.getInt(SettingsProvider.KEY_CUSTOM_STYLE, DEFAULT_STYLE);
         if (style >= STYLES.length) { style = 0; }
         ImageView[] styles = {

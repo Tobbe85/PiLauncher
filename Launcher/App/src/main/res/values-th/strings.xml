@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">-爪 Launcher-</string>
+    <string name="app_name">PiLauncher</string>
     <string name="default_apps_group">ปพลิเคชัน</string>
     <string name="add_group">เพิ่มกลุ่ม</string>
     <string name="delete_group">ลบกลุ่ม</string>
@@ -8,6 +8,9 @@
     <string name="app_details">รายละเอียดการสมัคร</string>
     <string name="apps_hidden">ที่ซ่อนอยู่</string>
 
+    <string name="delete_app">ถอนการติดตั้ง</string>
+    <string name="request_permission">คลิกที่นี่เพื่อให้สิทธิ์</string>
+    <string name="game_info">ข้อมูลเกม</string>
     <string name="settings_apps_enable">เปิดใช้งานการแก้ไข</string>
     <string name="settings_apps_disable">ปิดใช้งานการแก้ไข</string>
     <string name="settings_device">การตั้งค่าระบบ</string>
@@ -40,4 +43,5 @@
         <item>↓ วันที่ติดตั้ง</item>
         <item>↑ วันที่ติดตั้ง</item>
     </string-array>
+    <string name="clear_cache">ล้างแคชไอคอน</string>
 </resources>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">-爪 Launcher-</string>
+    <string name="app_name">PiLauncher</string>
     <string name="default_apps_group">Apps</string>
     <string name="add_group">Groep toevoegen</string>
     <string name="delete_group">Groep verwijderen</string>
@@ -8,6 +8,9 @@
     <string name="app_details">App-gegevens</string>
     <string name="apps_hidden">Verborgen</string>
 
+    <string name="delete_app">Deïnstalleren</string>
+    <string name="request_permission">Klik hier om toestemming te geven</string>
+    <string name="game_info">Spelinformatie</string>
     <string name="settings_apps_enable">Bewerken inschakelen</string>
     <string name="settings_apps_disable">Bewerken uitschakelen</string>
     <string name="settings_device">"Instellingen apparaat "</string>
@@ -40,4 +43,5 @@
         <item>↓ Installatiedatum</item>
         <item>↑ Installatiedatum</item>
     </string-array>
+    <string name="clear_cache">Pictogramcache wissen</string>
 </resources>

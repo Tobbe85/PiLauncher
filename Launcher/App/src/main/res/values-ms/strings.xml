@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">-爪 Pelancar-</string>
+    <string name="app_name">PiLauncher</string>
     <string name="default_apps_group">Apl</string>
     <string name="add_group">Tambah kumpulan</string>
     <string name="delete_group">Padamkan kumpulan</string>
@@ -8,6 +8,9 @@
     <string name="app_details">App details</string>
     <string name="apps_hidden">Tersembunyi</string>
 
+    <string name="delete_app">Nyahpasang</string>
+    <string name="request_permission">Klik di sini untuk memberikan kebenaran</string>
+    <string name="game_info">Maklumat Permainan</string>
     <string name="settings_apps_enable">Dayakan pengeditan</string>
     <string name="settings_apps_disable">Lumpuhkan pengeditan</string>
     <string name="settings_device">Tetapan peranti</string>
@@ -40,4 +43,5 @@
         <item>↓ Tarikh pemasangan</item>
         <item>↑ Tarikh pemasangan</item>
     </string-array>
+    <string name="clear_cache">Kosongkan cache ikon</string>
 </resources>

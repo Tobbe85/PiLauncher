@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">-爪 Launcher-</string>
+    <string name="app_name">PiLauncher</string>
     <string name="default_apps_group">Apper</string>
     <string name="add_group">Legg til gruppe</string>
     <string name="delete_group">Slette gruppe</string>
@@ -8,6 +8,9 @@
     <string name="app_details">Appdetaljer</string>
     <string name="apps_hidden">Skjult</string>
 
+    <string name="delete_app">Avinstallere</string>
+    <string name="request_permission">Klikk her for å gi tillatelse</string>
+    <string name="game_info">Spillinformasjon</string>
     <string name="settings_apps_enable">Aktiver redigering</string>
     <string name="settings_apps_disable">Deaktiver redigering</string>
     <string name="settings_device">Enhetsinnstillinger</string>
@@ -40,4 +43,5 @@
         <item>↓ Installasjonsdato</item>
         <item>↑ Installasjonsdato</item>
     </string-array>
+    <string name="clear_cache">Tøm ikonbuffer</string>
 </resources>

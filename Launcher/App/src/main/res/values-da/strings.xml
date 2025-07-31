@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">-爪 Launcher-</string>
+    <string name="app_name">PiLauncher</string>
     <string name="default_apps_group">Apps</string>
     <string name="add_group">Tilføj gruppe</string>
     <string name="delete_group">Slet gruppe</string>
@@ -8,6 +8,9 @@
     <string name="app_details">App detaljer</string>
     <string name="apps_hidden">Skjult</string>
 
+    <string name="delete_app">Afinstaller</string>
+    <string name="request_permission">Klik her for at give tilladelse</string>
+    <string name="game_info">Spilinformation</string>
     <string name="settings_apps_enable">Aktiver redigering</string>
     <string name="settings_apps_disable">Deaktiver redigering</string>
     <string name="settings_device">Enhedsindstillinger</string>
@@ -40,4 +43,5 @@
         <item>↓ Installationsdato</item>
         <item>↑ Installationsdato</item>
     </string-array>
+    <string name="clear_cache">Ryd ikon-cache</string>
 </resources>

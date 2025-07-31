@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">-爪 Launcher-</string>
+    <string name="app_name">PiLauncher</string>
     <string name="default_apps_group">Apps</string>
     <string name="add_group">Add group</string>
     <string name="delete_group">Delete group</string>
     <string name="edit_group">Edit group</string>
     <string name="app_details">App details</string>
     <string name="apps_hidden">Hidden</string>
+    <string name="delete_app">Uninstall</string>
+    <string name="request_permission">Click here to give Permission</string>
+    <string name="game_info">Game Information</string>
+    <string name="clear_cache">Clear Icon Cache</string>
 
     <string name="settings_apps_enable">Enable editing</string>
     <string name="settings_apps_disable">Disable editing</string>

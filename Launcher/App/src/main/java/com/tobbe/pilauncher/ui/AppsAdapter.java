@@ -1,10 +1,26 @@
-package com.veticia.piLauncherNext.ui;
+package com.tobbe.pilauncher.ui;
 
-import static com.veticia.piLauncherNext.MainActivity.DEFAULT_SCALE;
-import static com.veticia.piLauncherNext.MainActivity.DEFAULT_STYLE;
-import static com.veticia.piLauncherNext.MainActivity.STYLES;
-import static com.veticia.piLauncherNext.MainActivity.sharedPreferences;
+import static com.tobbe.pilauncher.MainActivity.DEFAULT_SCALE;
+import static com.tobbe.pilauncher.MainActivity.DEFAULT_STYLE;
+import static com.tobbe.pilauncher.MainActivity.STYLES;
+import static com.tobbe.pilauncher.MainActivity.sharedPreferences;
+import com.tobbe.pilauncher.platforms.AbstractPlatform;
 
+import android.os.Looper;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
+import android.text.Spannable;
+import android.graphics.Color;
+import android.provider.Settings;
+import android.app.AppOpsManager;
+import android.app.usage.StorageStats;
+import android.app.usage.StorageStatsManager;
+import android.os.UserHandle;
+import android.os.storage.StorageManager;
+import java.util.UUID;
+import androidx.browser.customtabs.CustomTabsIntent;
+import android.content.Intent;
+import android.net.Uri;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -32,13 +48,21 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.view.inputmethod.InputMethodManager;
+import android.view.WindowManager;
 
-import com.veticia.piLauncherNext.ImageUtils;
-import com.veticia.piLauncherNext.MainActivity;
-import com.veticia.piLauncherNext.R;
-import com.veticia.piLauncherNext.SettingsProvider;
-import com.veticia.piLauncherNext.platforms.AbstractPlatform;
+import com.tobbe.pilauncher.ImageUtils;
+import com.tobbe.pilauncher.MainActivity;
+import com.tobbe.pilauncher.R;
+import com.tobbe.pilauncher.SettingsProvider;
+import com.tobbe.pilauncher.platforms.AbstractPlatform;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.*;
+import java.util.concurrent.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,6 +71,7 @@ import java.util.Map;
 
 public class AppsAdapter extends BaseAdapter
 {
+    public static final Set<String> indieGamesSet = new HashSet<>();
     final int style = sharedPreferences.getInt(SettingsProvider.KEY_CUSTOM_STYLE, DEFAULT_STYLE);
     private static Drawable iconDrawable;
     private static File iconFile;
@@ -61,6 +86,8 @@ public class AppsAdapter extends BaseAdapter
 
     public enum SORT_FIELD { APP_NAME, RECENT_DATE, INSTALL_DATE }
     public enum SORT_ORDER { ASCENDING, DESCENDING }
+
+    public static boolean fetch_indie = false;
 
     public AppsAdapter(MainActivity context, boolean editMode, int scale, boolean names)
     {
@@ -244,6 +271,15 @@ public class AppsAdapter extends BaseAdapter
         AbstractPlatform.clearIconCache();
         if (path != null) {
             Bitmap bitmap = ImageUtils.getResizedBitmap(BitmapFactory.decodeFile(path), 512);
+            bitmap = Bitmap.createScaledBitmap(bitmap, 450, 253, true);
+            if (style == 1) {
+                bitmap = Bitmap.createScaledBitmap(bitmap, 253, 253, true);
+                bitmap = AbstractPlatform.applyRoundedCorners(bitmap, 24);
+            }
+            if (style == 2) {
+                bitmap = Bitmap.createScaledBitmap(bitmap, 253, 253, true);
+                bitmap = AbstractPlatform.makeRounded(bitmap);
+            }
             ImageUtils.saveBitmap(bitmap, iconFile);
             selectedImageView.setImageBitmap(bitmap);
         } else {
@@ -305,31 +341,192 @@ public class AppsAdapter extends BaseAdapter
         this.notifyDataSetChanged();
     }
 
+    private void showAppSize(Context context, String packageName, TextView sizeText) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
+                StorageStatsManager storageStatsManager = (StorageStatsManager) context.getSystemService(Context.STORAGE_STATS_SERVICE);
+                StorageManager storageManager = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
+                PackageManager pm = context.getPackageManager();
+                ApplicationInfo appInfo = pm.getApplicationInfo(packageName, 0);
+
+                UUID storageUuid = storageManager.getUuidForPath(new File(appInfo.dataDir));
+
+                StorageStats stats = storageStatsManager.queryStatsForPackage(storageUuid, packageName, UserHandle.getUserHandleForUid(appInfo.uid));
+
+                long totalBytes = stats.getAppBytes() + stats.getDataBytes() + stats.getCacheBytes();
+
+                String sizeReadable = android.text.format.Formatter.formatFileSize(context, totalBytes);
+                sizeText.setText("\uD83D\uDCBE  " + sizeReadable);
+            } catch (PackageManager.NameNotFoundException e) {
+                sizeText.setText("\uD83D\uDCBE  ?");
+                e.printStackTrace();
+            } catch (Exception e) {
+                String permissionText = context.getString(R.string.request_permission);
+                sizeText.setText(
+                        new SpannableStringBuilder("\uD83D\uDCBE  ")
+                                .append(permissionText, new ForegroundColorSpan(Color.RED), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                );
+                e.printStackTrace();
+                sizeText.setOnClickListener(v -> {
+                    requestUsageStatsPermissionIfNeeded(mainActivityContext);
+                });
+            }
+        } else {
+            sizeText.setText("\uD83D\uDCBE  n.A.");
+        }
+    }
+
+    public static boolean hasUsageStatsPermission(Context context) {
+        AppOpsManager appOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+        int mode = AppOpsManager.MODE_DEFAULT;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            mode = appOps.unsafeCheckOpNoThrow(
+                    AppOpsManager.OPSTR_GET_USAGE_STATS,
+                    android.os.Process.myUid(),
+                    context.getPackageName()
+            );
+        } else {
+            mode = appOps.checkOpNoThrow(
+                    AppOpsManager.OPSTR_GET_USAGE_STATS,
+                    android.os.Process.myUid(),
+                    context.getPackageName()
+            );
+        }
+
+        return mode == AppOpsManager.MODE_ALLOWED;
+    }
+
+    // Request USER STATS Permission
+    public static void requestUsageStatsPermissionIfNeeded(Context context) {
+        if (!hasUsageStatsPermission(context)) {
+            Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }
+    }
+
+    public static void fetchIndieGameList() {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        executor.execute(() -> {
+            try {
+                URL url = new URL("https://raw.githubusercontent.com/Tobbe85/PiLauncher/main/indiegames");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setConnectTimeout(5000);
+                connection.setReadTimeout(5000);
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                String line;
+                Set<String> result = new HashSet<>();
+                while ((line = reader.readLine()) != null) {
+                    result.add(line.trim());
+                }
+                reader.close();
+                connection.disconnect();
+
+                fetch_indie = true;
+
+                handler.post(() -> {
+                    indieGamesSet.clear();
+                    indieGamesSet.addAll(result);
+                });
+            } catch (Exception e) {
+                fetch_indie = false;
+            }
+        });
+    }
+
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private void showAppDetails(ApplicationInfo actApp) {
-
-        //set layout
+        // Layout setzen
         AlertDialog.Builder builder = new AlertDialog.Builder(mainActivityContext);
         builder.setView(R.layout.dialog_app_details);
         AlertDialog dialog = builder.create();
         dialog.getWindow().setBackgroundDrawableResource(R.drawable.bkg_dialog);
         dialog.show();
 
-        //info action
+        // Info-Button öffnet App-Details-Einstellungen
         dialog.findViewById(R.id.info).setOnClickListener(view13 -> mainActivityContext.openAppDetails(actApp.packageName));
 
-        //set name
+        dialog.findViewById(R.id.info_text).setOnClickListener(view13 -> {
+            String packageName = actApp.packageName;
+            String store = "us";
+
+            if (indieGamesSet.contains(packageName)) {
+                if (packageName.equals("com.Baggyg.QuestZDoom_Launcher")) {
+                    packageName = "com.drbeef.questzdoom";
+                }
+                if (packageName.equals("com.BaggyG.JKXR_Companion_App")) {
+                    packageName = "com.drbeef.jkxr";
+                }
+                if (packageName.equals("com.CactusStudios.Lambda1VR_Launcher")) {
+                    packageName = "com.drbeef.lambda1vr";
+                }
+                if (packageName.equals("com.BaggyG.RazeXR_Launcher")) {
+                    packageName = "com.drbeef.razexr";
+                }
+                store = "zz";
+            }
+
+            if (!store.equals("zz")) {
+                String[] specialLibs = {
+                        "libovrplatformloader.so",
+                        "libOVRPlugin.so"
+                };
+                boolean allLibsExist = true;
+
+                for (String libName : specialLibs) {
+                    File libFile = new File(actApp.nativeLibraryDir, libName);
+                    if (!libFile.exists()) {
+                        allLibsExist = false;
+                        break;
+                    }
+                }
+
+                if (allLibsExist) {
+                    store = "ov";
+                }
+            }
+
+            String url = "https://ppdata.uk/?pkg=" + packageName + "&store=" + store;
+
+            CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().build();
+            customTabsIntent.launchUrl(mainActivityContext, Uri.parse(url));
+        });
+
+        // Delete-Button löscht App
+        dialog.findViewById(R.id.delete).setOnClickListener(view -> {
+            Intent intent = new Intent(Intent.ACTION_DELETE);
+            intent.setData(Uri.parse("package:" + actApp.packageName));
+            mainActivityContext.startActivity(intent);
+            dialog.dismiss();
+            mainActivityContext.reloadUI();
+        });
+
+        // Name setzen
         PackageManager pm = mainActivityContext.getPackageManager();
         String name = SettingsProvider.getAppDisplayName(mainActivityContext, actApp.packageName, actApp.loadLabel(pm));
         final EditText input = dialog.findViewById(R.id.app_name);
         input.setText(name);
+        input.clearFocus();
+        input.setOnClickListener(v -> {
+            input.requestFocus();
+            InputMethodManager imm = (InputMethodManager) mainActivityContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+        });
+
         dialog.findViewById(R.id.ok).setOnClickListener(view12 -> {
             settingsProvider.setAppDisplayName(actApp, input.getText().toString());
             mainActivityContext.reloadUI();
             dialog.dismiss();
         });
 
-        // load icon
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
+        // Icon laden
         ImageView tempImage = dialog.findViewById(R.id.app_icon);
         AbstractPlatform platform = AbstractPlatform.getPlatform(actApp);
         platform.loadIcon(mainActivityContext, tempImage, actApp, name);
@@ -337,13 +534,57 @@ public class AppsAdapter extends BaseAdapter
         tempImage.setOnClickListener(view1 -> {
             iconDrawable = actApp.loadIcon(pm);
             packageName = actApp.packageName;
-            iconFile = AbstractPlatform.pkg2path(mainActivityContext, STYLES[style]+"."+actApp.packageName);
+            iconFile = AbstractPlatform.pkg2path(mainActivityContext, STYLES[style] + "." + actApp.packageName);
             if (iconFile.exists()) {
                 iconFile.delete();
             }
             mainActivityContext.setSelectedImageView(tempImage);
             ImageUtils.showImagePicker(mainActivityContext, MainActivity.PICK_ICON_CODE);
         });
+
+        // Package-Name anzeigen
+        TextView packageText = dialog.findViewById(R.id.package_show);
+        if (packageText != null) {
+            packageText.setText("\uD83D\uDCE6  " + actApp.packageName);
+        }
+
+        //App Größe anzeigen
+        TextView sizeText = dialog.findViewById(R.id.size_show);
+        showAppSize(mainActivityContext, actApp.packageName, sizeText);
+// show app version
+        String[] enginelibs = {
+                "libUE4.so",
+                "libUnreal.so",
+                "libil2cpp.so"
+        };
+
+        TextView versionText = dialog.findViewById(R.id.version_show);
+        String enginevar = "Unknown Engine";
+
+        for (String libName : enginelibs) {
+            File libFile = new File(actApp.nativeLibraryDir, libName);
+            if (libFile.exists()) {
+                if (libName.equals("libUE4.so")) {
+                    enginevar = "Unreal Engine 4";
+                    break;
+                } else if (libName.equals("libUnreal.so")) {
+                    enginevar = "Unreal Engine 5";
+                    break;
+                } else if (libName.equals("libil2cpp.so")) {
+                    enginevar = "Unity Engine";
+                    break;
+                }
+            }
+        }
+
+        if (versionText != null) {
+            try {
+                String versionName = pm.getPackageInfo(actApp.packageName, 0).versionName;
+                versionText.setText("\uD83C\uDD9A  " + versionName + "  |  " + "\uD83D\uDE80  " + enginevar);
+            } catch (PackageManager.NameNotFoundException e) {
+                versionText.setText("\uD83C\uDD9A  ?  /  " + "\uD83D\uDE80  " + enginevar);
+            }
+        }
     }
 
     public String getSelectedPackage() {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">-爪 Launcher-</string>
+    <string name="app_name">PiLauncher</string>
     <string name="default_apps_group">Uygulamalar</string>
     <string name="add_group">Grup ekle</string>
     <string name="delete_group">Grubu sil</string>
@@ -8,6 +8,9 @@
     <string name="app_details">Uygulama ayrıntıları</string>
     <string name="apps_hidden">Gizlenmiş</string>
 
+    <string name="delete_app">Kaldırmak</string>
+    <string name="request_permission">İzin vermek için buraya tıklayın</string>
+    <string name="game_info">Oyun Bilgisi</string>
     <string name="settings_apps_enable">Düzenlemeyi etkinleştir</string>
     <string name="settings_apps_disable">Düzenlemeyi devre dışı bırak</string>
     <string name="settings_device">Cihaz ayarları</string>
@@ -39,4 +42,5 @@
         <item>↓ Kurulum tarihi</item>
         <item>↑ Kurulum tarihi</item>
     </string-array>
+    <string name="clear_cache">Simge önbelleğini temizle</string>
 </resources>
