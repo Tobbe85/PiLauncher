@@ -44,4 +44,6 @@
         <item>↑ Ημερομηνία εγκατάστασης</item>
     </string-array>
     <string name="clear_cache">Εκκαθάριση της προσωρινής μνήμης εικονιδίων</string>
+    <string name="show_near">λειτουργία αποβάθρας</string>
+    <string name="stats_tooltip">Αλλαγή της άδειας \"STATS\"</string>
 </resources>

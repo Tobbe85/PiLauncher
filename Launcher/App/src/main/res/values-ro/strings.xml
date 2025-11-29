@@ -44,4 +44,6 @@
         <item>↑ Data instalării</item>
     </string-array>
     <string name="clear_cache">Golire cache pictograme</string>
+    <string name="show_near">Mod Andocat</string>
+    <string name="stats_tooltip">Modifica permisiunea \"STATS\"</string>
 </resources>

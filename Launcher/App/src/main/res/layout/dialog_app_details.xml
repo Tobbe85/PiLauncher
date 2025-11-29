@@ -73,6 +73,15 @@
         android:textColorLink="#FFFFFF" />
 
     <TextView
+        android:id="@+id/engine_show"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
+        android:textColorHighlight="#FFFFFF"
+        android:textColorHint="#FFFFFF"
+        android:textColorLink="#FFFFFF" />
+
+    <TextView
         android:id="@+id/size_show"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

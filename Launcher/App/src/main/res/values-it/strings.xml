@@ -44,4 +44,6 @@
         <item>↑ Data di installazione</item>
     </string-array>
     <string name="clear_cache">Svuota la cache delle icone</string>
+    <string name="show_near">Modalità Dock</string>
+    <string name="stats_tooltip">Modificare l\'autorizzazione \"STATS\"</string>
 </resources>

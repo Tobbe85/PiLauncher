@@ -43,4 +43,6 @@
         <item>↑ Kurulum tarihi</item>
     </string-array>
     <string name="clear_cache">Simge önbelleğini temizle</string>
+    <string name="show_near">Yuvalanmış Mod</string>
+    <string name="stats_tooltip">\"STATS\" iznini değiştir</string>
 </resources>

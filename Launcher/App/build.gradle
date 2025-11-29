@@ -21,8 +21,8 @@ android {
         minSdkVersion 23
         //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 23
-        versionCode 20
-        versionName "2.0"
+        versionCode 30
+        versionName "2.1"
         signingConfig signingConfigs.release
     }
 

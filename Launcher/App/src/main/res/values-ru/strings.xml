@@ -43,4 +43,6 @@
         <item>↑ Дата установки</item>
     </string-array>
     <string name="clear_cache">Очистить кэш значков</string>
+    <string name="show_near">док-режим</string>
+    <string name="stats_tooltip">Изменить разрешение \"STATS\"</string>
 </resources>

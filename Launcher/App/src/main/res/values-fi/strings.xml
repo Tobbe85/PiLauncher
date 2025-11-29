@@ -44,4 +44,6 @@
         <item>↑ Asennuspäivämäärä</item>
     </string-array>
     <string name="clear_cache">Tyhjennä kuvakevälimuisti</string>
+    <string name="show_near">Telakointitila</string>
+    <string name="stats_tooltip">Muuta oikeutta \"STATS\"</string>
 </resources>

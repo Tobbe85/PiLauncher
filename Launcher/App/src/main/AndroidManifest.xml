@@ -24,8 +24,9 @@
             </intent-filter>
         </receiver>
 
+        <!-- Choosing Activity -->
         <activity
-            android:name="com.tobbe.pilauncher.MainActivity"
+            android:name="com.tobbe.pilauncher.LauncherActivity"
             android:launchMode="singleInstance"
             android:screenOrientation="landscape"
             android:configChanges="orientation|keyboardHidden"
@@ -35,6 +36,28 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
+        </activity>
+
+        <!-- Windowed Mode -->
+        <activity
+            android:name="com.tobbe.pilauncher.MainActivity"
+            android:launchMode="singleInstance"
+            android:screenOrientation="landscape"
+            android:configChanges="orientation|keyboardHidden"
+            android:exported="false" />
+
+        <!-- Docked Mode (inherits from MainActivity)-->
+        <activity
+            android:name="com.tobbe.pilauncher.MainActivityNear"
+            android:launchMode="singleInstance"
+            android:screenOrientation="landscape"
+            android:configChanges="orientation|keyboardHidden"
+            android:exported="false">
+
+            <meta-data
+                android:name="pico.vr.position" android:value="near" />
+
         </activity>
 
         <service

@@ -44,4 +44,6 @@
         <item>↓ Install date</item>
         <item>↑ Install date</item>
     </string-array>
+    <string name="show_near">Docked Modus</string>
+    <string name="stats_tooltip">Change \"STATS\" Permission</string>
 </resources>

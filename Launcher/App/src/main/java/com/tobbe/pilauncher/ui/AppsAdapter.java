@@ -6,6 +6,7 @@ import static com.tobbe.pilauncher.MainActivity.STYLES;
 import static com.tobbe.pilauncher.MainActivity.sharedPreferences;
 import com.tobbe.pilauncher.platforms.AbstractPlatform;
 
+import android.content.SharedPreferences;
 import android.os.Looper;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
@@ -18,6 +19,12 @@ import android.app.usage.StorageStatsManager;
 import android.os.UserHandle;
 import android.os.storage.StorageManager;
 import java.util.UUID;
+import android.app.Dialog;
+import android.widget.Button;
+import android.webkit.WebView;
+import android.net.Uri;
+import android.view.View;
+import java.io.File;
 import androidx.browser.customtabs.CustomTabsIntent;
 import android.content.Intent;
 import android.net.Uri;
@@ -224,32 +231,49 @@ public class AppsAdapter extends BaseAdapter
             });
         } else {
             holder.layout.setOnClickListener(view -> {
-                holder.progressBar.setVisibility(View.VISIBLE);
-                RotateAnimation rotateAnimation = new RotateAnimation(
-                        0, 360,
-                        Animation.RELATIVE_TO_SELF, 0.5f,
-                        Animation.RELATIVE_TO_SELF, 0.5f
-                );
-                rotateAnimation.setDuration(1000);
-                rotateAnimation.setRepeatCount(Animation.INFINITE);
-                rotateAnimation.setInterpolator(new LinearInterpolator());
-                holder.progressBar.startAnimation(rotateAnimation);
-                if(!mainActivityContext.openApp(currentApp)) {
-                    holder.progressBar.setVisibility(View.GONE);
-                    holder.progressBar.clearAnimation();
-                }
 
-                handler.removeCallbacksAndMessages(null);
-                handler.postDelayed(() -> {
-                    AlphaAnimation fadeOut = new AlphaAnimation(1, 0);
-                    fadeOut.setDuration(1000);
-                    fadeOut.setFillAfter(true);
-                    holder.progressBar.startAnimation(fadeOut);
-                }, 2000);
-                handler.postDelayed(() -> {
-                    holder.progressBar.setVisibility(View.GONE);
-                    holder.progressBar.clearAnimation();
-                }, 3000);
+                view.post(() -> {
+
+                    holder.layout.animate()
+                            .scaleX(0.8f)
+                            .scaleY(0.8f)
+                            .setDuration(100)
+                            .withEndAction(() -> {
+
+                                holder.layout.animate()
+                                        .scaleX(1.4f)
+                                        .scaleY(1.4f)
+                                        .alpha(0f)
+                                        .setDuration(220)
+                                        .withEndAction(() -> {
+
+                                            if (!AbstractPlatform.isVirtualRealityApp(currentApp)) {
+                                                holder.layout.setScaleX(1f);
+                                                holder.layout.setScaleY(1f);
+                                                holder.layout.setAlpha(1f);
+                                                mainActivityContext.openApp(currentApp);
+                                                return;
+                                            }
+
+                                            View fade = mainActivityContext.findViewById(R.id.fade_overlay);
+                                            fade.animate()
+                                                    .alpha(1f)
+                                                    .setDuration(180)
+                                                    .withEndAction(() -> {
+
+                                                        if (!mainActivityContext.openApp(currentApp)) {
+                                                            fade.animate().alpha(0f).setDuration(200).start();
+                                                            holder.layout.setScaleX(1f);
+                                                            holder.layout.setScaleY(1f);
+                                                            holder.layout.setAlpha(1f);
+                                                        }
+                                                    })
+                                                    .start();
+                                        })
+                                        .start();
+                            })
+                            .start();
+                });
             });
             holder.layout.setOnLongClickListener(view -> {
                 showAppDetails(currentApp);
@@ -447,9 +471,21 @@ public class AppsAdapter extends BaseAdapter
         AlertDialog dialog = builder.create();
         dialog.getWindow().setBackgroundDrawableResource(R.drawable.bkg_dialog);
         dialog.show();
+        View content = dialog.findViewById(R.id.layout);
+        content.measure(
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        );
+        int desiredWidth = content.getMeasuredWidth();
+        dialog.getWindow().setLayout(
+                desiredWidth,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
 
         // Info-Button öffnet App-Details-Einstellungen
-        dialog.findViewById(R.id.info).setOnClickListener(view13 -> mainActivityContext.openAppDetails(actApp.packageName));
+        dialog.findViewById(R.id.info).setOnClickListener(view13 ->
+                mainActivityContext.openAppDetails(actApp.packageName)
+        );
 
         dialog.findViewById(R.id.info_text).setOnClickListener(view13 -> {
             String packageName = actApp.packageName;
@@ -493,8 +529,19 @@ public class AppsAdapter extends BaseAdapter
 
             String url = "https://ppdata.uk/?pkg=" + packageName + "&store=" + store;
 
-            CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().build();
-            customTabsIntent.launchUrl(mainActivityContext, Uri.parse(url));
+            // ----------- NEU: eigenes Fenster (Dialog) statt Browser -----------
+
+            Dialog webDialog = new Dialog(mainActivityContext, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+            webDialog.setContentView(R.layout.dialog_webview);
+
+            WebView web = webDialog.findViewById(R.id.web);
+            web.getSettings().setJavaScriptEnabled(true);
+            web.loadUrl(url);
+
+            webDialog.show();
+
+            Button close = webDialog.findViewById(R.id.close_button);
+            close.setOnClickListener(v -> webDialog.dismiss());
         });
 
         // Delete-Button löscht App
@@ -555,10 +602,22 @@ public class AppsAdapter extends BaseAdapter
         String[] enginelibs = {
                 "libUE4.so",
                 "libUnreal.so",
-                "libil2cpp.so"
+                "libil2cpp.so",
+                "libunity.so",
+                "libxenko.so",
+                "libStrideNative.so",
+                "libcocos2dcpp.so",
+                "libcocos2djs.so",
+                "libCryEngine.so",
+                "libCrySystem.so",
+                "libgodot_android.so",
+                "libgodot.so",
+                "libgodot_android_template.so"
+
         };
 
         TextView versionText = dialog.findViewById(R.id.version_show);
+        TextView engineText = dialog.findViewById(R.id.engine_show);
         String enginevar = "Unknown Engine";
 
         for (String libName : enginelibs) {
@@ -570,8 +629,23 @@ public class AppsAdapter extends BaseAdapter
                 } else if (libName.equals("libUnreal.so")) {
                     enginevar = "Unreal Engine 5";
                     break;
-                } else if (libName.equals("libil2cpp.so")) {
+                } else if (libName.equals("libil2cpp.so") || libName.equals("libunity.so")) {
                     enginevar = "Unity Engine";
+                    break;
+                } else if (libName.equals("libxenko.so") || libName.equals("libStrideNative.so")) {
+                    enginevar = "Stride Engine";
+                    break;
+                } else if (libName.equals("libcocos2dcpp.so") || libName.equals("libcocos2djs.so")) {
+                    enginevar = "Cocos2d-x Engine";
+                    break;
+                } else if (libName.equals("libCryEngine.so") || libName.equals("libCrySystem.so")) {
+                    enginevar = "Cry Engine";
+                    break;
+                } else if (libName.equals("libgodot_android.so") || libName.equals("libgodot.so")) {
+                    enginevar = "Godot Engine";
+                    break;
+                } else if (libName.equals("libgodot_android_template.so")) {
+                    enginevar = "Godot 4 Engine";
                     break;
                 }
             }
@@ -580,10 +654,13 @@ public class AppsAdapter extends BaseAdapter
         if (versionText != null) {
             try {
                 String versionName = pm.getPackageInfo(actApp.packageName, 0).versionName;
-                versionText.setText("\uD83C\uDD9A  " + versionName + "  |  " + "\uD83D\uDE80  " + enginevar);
+                versionText.setText("\uD83C\uDD9A  " + versionName);
             } catch (PackageManager.NameNotFoundException e) {
-                versionText.setText("\uD83C\uDD9A  ?  /  " + "\uD83D\uDE80  " + enginevar);
+                versionText.setText("\uD83C\uDD9A  ?");
             }
+        }
+        if (engineText != null) {
+            engineText.setText("\uD83D\uDE80  " + enginevar);
         }
     }
 

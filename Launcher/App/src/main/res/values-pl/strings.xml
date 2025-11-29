@@ -44,4 +44,6 @@
         <item>↑ Data instalacji</item>
     </string-array>
     <string name="clear_cache">Wyczyść pamięć podręczną ikon</string>
+    <string name="show_near">Tryb Zadokowany</string>
+    <string name="stats_tooltip">Zmień uprawnienie \"STATS\"</string>
 </resources>

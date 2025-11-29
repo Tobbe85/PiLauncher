@@ -44,4 +44,6 @@
         <item>↑ Installatiedatum</item>
     </string-array>
     <string name="clear_cache">Pictogramcache wissen</string>
+    <string name="show_near">Gedockte Modus</string>
+    <string name="stats_tooltip">Wijzig de machtiging \"STATS\"</string>
 </resources>

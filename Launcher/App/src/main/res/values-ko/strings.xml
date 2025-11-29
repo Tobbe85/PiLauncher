@@ -44,4 +44,6 @@
         <item>↑ 설치 날짜</item>
     </string-array>
     <string name="clear_cache">아이콘 캐시 삭제</string>
+    <string name="show_near">도킹 모드</string>
+    <string name="stats_tooltip">\"STATS\" 권한 변경</string>
 </resources>

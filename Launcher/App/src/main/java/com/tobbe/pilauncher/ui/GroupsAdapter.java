@@ -212,7 +212,7 @@ public class GroupsAdapter extends BaseAdapter {
         filler.setMinimumWidth(gap);
         boolean isSelected = selectedGroups.contains(appGroups.get(position));
         if (isSelected) {
-            int[] colors = new int[] {Color.argb(192, 255, 255, 255), Color.TRANSPARENT};
+            int[] colors = new int[] {Color.argb(255, 247, 223, 170), Color.TRANSPARENT};
             GradientDrawable.Orientation orientation = GradientDrawable.Orientation.TOP_BOTTOM;
             itemView.setBackground(new GradientDrawable(orientation, colors));
             if(position==getCount()-1){

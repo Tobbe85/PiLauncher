@@ -44,4 +44,6 @@
         <item>↑ Date d\'installation</item>
     </string-array>
     <string name="clear_cache">Vider le cache des icônes</string>
+    <string name="show_near">Mode Ancré</string>
+    <string name="stats_tooltip">Modifier l’autorisation \"STATS\"</string>
 </resources>

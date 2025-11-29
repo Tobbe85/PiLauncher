@@ -44,4 +44,6 @@
         <item>↑ インストール日</item>
     </string-array>
     <string name="clear_cache">アイコンキャッシュをクリア</string>
+    <string name="show_near">ドックモード</string>
+    <string name="stats_tooltip">\"STATS\" 権限を変更する</string>
 </resources>

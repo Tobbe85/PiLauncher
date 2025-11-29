@@ -44,4 +44,6 @@
         <item>↑ Data de instalação</item>
     </string-array>
     <string name="clear_cache">Limpar cache de ícones</string>
+    <string name="show_near">Modo Acoplado</string>
+    <string name="stats_tooltip">Alterar a permissão \"STATS\"</string>
 </resources>

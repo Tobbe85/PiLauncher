@@ -44,4 +44,6 @@
         <item>↑ Installasjonsdato</item>
     </string-array>
     <string name="clear_cache">Tøm ikonbuffer</string>
+    <string name="show_near">Dokket Modus</string>
+    <string name="stats_tooltip">Endre tillatelsen \"STATS\"</string>
 </resources>

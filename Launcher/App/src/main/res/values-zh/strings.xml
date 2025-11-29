@@ -44,4 +44,6 @@
         <item>↑ 安装日期</item>
     </string-array>
     <string name="clear_cache">清除缓存图标</string>
+    <string name="show_near">停靠模式</string>
+    <string name="stats_tooltip">更改 \"STATS\" 权限</string>
 </resources>

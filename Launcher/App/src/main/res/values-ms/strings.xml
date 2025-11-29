@@ -44,4 +44,6 @@
         <item>↑ Tarikh pemasangan</item>
     </string-array>
     <string name="clear_cache">Kosongkan cache ikon</string>
+    <string name="show_near">Mod Terkandang</string>
+    <string name="stats_tooltip">Tukar kebenaran \"STATS\"</string>
 </resources>

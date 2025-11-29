@@ -39,21 +39,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent" />
 
-            <ImageView
-                android:id="@+id/update"
-                android:layout_width="60dp"
-                android:layout_height="40dp"
-                android:background="@drawable/bkg_update"
-                android:paddingLeft="20dp"
-                android:paddingTop="10dp"
-                android:paddingRight="20dp"
-                android:paddingBottom="10dp"
-                android:scaleType="fitCenter"
-                android:shadowColor="#80000000"
-                android:shadowRadius="5"
-                android:src="@android:drawable/stat_notify_sync"
-                android:visibility="gone" />
-
             <Spinner
                 android:id="@+id/sort"
                 android:layout_width="wrap_content"
@@ -68,6 +53,21 @@
                 android:theme="@style/spinnerItemStyle"
                 app:strokeColor="#80000000"
                 app:strokeWidth="1.5dp" />
+
+            <ImageView
+                android:id="@+id/update"
+                android:layout_width="60dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bkg_update"
+                android:paddingLeft="20dp"
+                android:paddingTop="10dp"
+                android:paddingRight="20dp"
+                android:paddingBottom="10dp"
+                android:scaleType="fitCenter"
+                android:shadowColor="#80000000"
+                android:shadowRadius="5"
+                android:src="@android:drawable/stat_notify_sync"
+                android:visibility="gone" />
 
             <ImageView
                 android:id="@+id/pi"
@@ -105,8 +105,9 @@
             android:verticalSpacing="15dp" />
 
         <LinearLayout
+            android:id="@+id/bottomBar"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
+            android:layout_height="40dp"
             android:orientation="horizontal">
 
             <TextView
@@ -119,7 +120,7 @@
 
             <TextView
                 android:id="@+id/os_version"
-                android:layout_width="88dp"
+                android:layout_width="60dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
@@ -127,7 +128,7 @@
 
             <TextView
                 android:id="@+id/android_version"
-                android:layout_width="88dp"
+                android:layout_width="60dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
@@ -140,6 +141,23 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:textColor="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/battery"
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/edit_mode_label"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textColor="#FFFFFF"
+                android:textSize="24sp"
+                android:visibility="gone"/>
         </LinearLayout>
 
     </LinearLayout>
@@ -157,4 +175,12 @@
         android:textColor="@color/ef_colorTextPrimary"
         android:textSize="@dimen/ef_font_medium"
         android:visibility="gone" />
+
+    <View
+        android:id="@+id/fade_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000000"
+        android:alpha="0"
+        android:visibility="visible"/>
 </RelativeLayout>

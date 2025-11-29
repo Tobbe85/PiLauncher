@@ -44,4 +44,6 @@
         <item>↑ วันที่ติดตั้ง</item>
     </string-array>
     <string name="clear_cache">ล้างแคชไอคอน</string>
+    <string name="show_near">โหมดเชื่อมต่อแท่น</string>
+    <string name="stats_tooltip">เปลี่ยนสิทธิ์ \"STATS\"</string>
 </resources>

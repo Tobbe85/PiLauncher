@@ -44,4 +44,6 @@
         <item>↑ Installationsdatum</item>
     </string-array>
     <string name="clear_cache">Rensa ikonens cache</string>
+    <string name="show_near">Dockat Läge</string>
+    <string name="stats_tooltip">Ändra behörigheten \"STATS\"</string>
 </resources>

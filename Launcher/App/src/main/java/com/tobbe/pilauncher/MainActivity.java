@@ -4,7 +4,12 @@ import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
 import android.os.Environment;
 import android.os.StatFs;
+import android.os.BatteryManager;
+import android.provider.Settings;
+import android.view.MotionEvent;
+import com.tobbe.pilauncher.platforms.AndroidPlatform;
 import com.tobbe.pilauncher.ui.AppsAdapter;
+import android.widget.LinearLayout;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -71,6 +76,8 @@ public class MainActivity extends Activity
     public static final int DEFAULT_STYLE = 0;
     public static final int PICK_ICON_CODE = 450;
     public static final int PICK_THEME_CODE = 95;
+    private Dialog settingsLookDialog;
+    private Dialog settingsMainDialog;
 
     private static final int[] SCALES = {82, 99, 125, 165, 236};
     private static final int[] THEMES = {
@@ -87,6 +94,7 @@ public class MainActivity extends Activity
             "rounded"
     };
     private static final boolean DEFAULT_AUTORUN = true;
+    public static final boolean DEFAULT_NEAR = false;
     public static final String EMULATOR_PACKAGE = "org.ppsspp.ppssppvr";
 
     private static ImageView[] selectedThemeImageViews;
@@ -104,10 +112,13 @@ public class MainActivity extends Activity
 
     public static void reset(Context context) {
         try {
-            Intent intent = new Intent(context, MainActivity.class);
+            Intent intent = new Intent(context, LauncherActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
-            ((Activity)context).finish();
+
+            if (context instanceof Activity) {
+                ((Activity) context).finish();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -123,9 +134,47 @@ public class MainActivity extends Activity
         }
     }
 
+    private int getBatteryPercentage() {
+        BatteryManager bm = (BatteryManager) getSystemService(BATTERY_SERVICE);
+        return bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+    }
+
+    private boolean isCharging() {
+        IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus = registerReceiver(null, filter);
+
+        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        return status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                status == BatteryManager.BATTERY_STATUS_FULL;
+    }
+
+    private final Handler handler = new Handler();
+    private final Runnable batteryUpdater = new Runnable() {
+        @Override
+        public void run() {
+            int battery = getBatteryPercentage();
+            boolean charging = isCharging();
+
+            TextView batteryView = findViewById(R.id.battery);
+
+            // 🔋 = Batterie, 🔌 = Plug / Charging
+            String icon = charging ? "\uD83D\uDD0B" + "\uD83D\uDD0C" : "\uD83D\uDD0B";
+
+            batteryView.setText(icon + " " + battery + "%");
+
+            handler.postDelayed(this, 5 * 1000);
+
+            batteryView.setOnClickListener(v -> {
+                Intent intent = new Intent(Intent.ACTION_POWER_USAGE_SUMMARY);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            });
+        }
+    };
+
     public String getStorageInfo(File path) {
         StatFs stat = new StatFs(path.getPath());
-        return String.format(Locale.US, "Memory:  %.1f GB / %.1f GB",
+        return String.format(Locale.US, "\uD83D\uDCBE  %.1f GB / %.1f GB",
                 stat.getAvailableBytes() / 1e9,
                 stat.getTotalBytes() / 1e9);
     }
@@ -149,6 +198,58 @@ public class MainActivity extends Activity
         appGridView = findViewById(R.id.appsView);
         backgroundImageView = findViewById(R.id.background);
         groupPanelGridView = findViewById(R.id.groupsView);
+
+        appGridView.setOnTouchListener(new View.OnTouchListener() {
+
+            private Handler longPressHandler = new Handler();
+            private boolean isLongPressTriggered = false;
+
+            private float startX;
+            private float startY;
+            private static final int MOVE_THRESHOLD = 20;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                switch (event.getAction()) {
+
+                    case MotionEvent.ACTION_DOWN:
+                        isLongPressTriggered = false;
+                        startX = event.getX();
+                        startY = event.getY();
+
+                        longPressHandler.postDelayed(() -> {
+                            isLongPressTriggered = true;
+
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            boolean mode = sharedPreferences.getBoolean(SettingsProvider.KEY_EDITMODE, false);
+                            editor.putBoolean(SettingsProvider.KEY_EDITMODE, !mode);
+                            editor.apply();
+
+                            reloadUI();
+                        }, 1000);
+                        return false;
+
+
+                    case MotionEvent.ACTION_MOVE:
+                        float dx = Math.abs(event.getX() - startX);
+                        float dy = Math.abs(event.getY() - startY);
+
+                        if (dx > MOVE_THRESHOLD || dy > MOVE_THRESHOLD) {
+                            longPressHandler.removeCallbacksAndMessages(null);
+                        }
+                        return false;
+
+
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        longPressHandler.removeCallbacksAndMessages(null);
+                        return isLongPressTriggered;
+                }
+
+                return false;
+            }
+        });
 
         // Handle group click listener
         groupPanelGridView.setOnItemClickListener((parent, view, position, id) -> {
@@ -198,21 +299,39 @@ public class MainActivity extends Activity
 
         TextView osTextView = findViewById(R.id.os_version);
         String picoOsVersion = getSystemProperty("ro.pui.build.version", "?");
-        osTextView.setText("PICO OS:  " + picoOsVersion);
+        osTextView.setText("⚙️  " + picoOsVersion);
 
         TextView osAndroidView = findViewById(R.id.android_version);
-        String osVersion = "Android:  " + Build.VERSION.RELEASE + " (SDK " + Build.VERSION.SDK_INT + ")";
+        String osVersion = "\uD83E\uDD16  " + Build.VERSION.RELEASE + " (SDK " + Build.VERSION.SDK_INT + ")";
         osAndroidView.setText(osVersion);
 
         TextView serialView = findViewById(R.id.model_number);
         String devicename = getSystemProperty("sys.pxr.product.name", "?");
         String modelnumber = getSystemProperty("sys.pxr.product.model", "?");
-        serialView.setText("Model:  " + devicename + "  [" + modelnumber + "]");
+        serialView.setText("\uD83E\uDD7D  " + devicename + "  [" + modelnumber + "]");
 
         TextView sizeView = findViewById(R.id.size);
         File internal = Environment.getDataDirectory();
         String info = getStorageInfo(internal);
         sizeView.setText(info);
+
+        View.OnClickListener openDeviceInfoListener = v -> {
+            Intent intent = new Intent(Settings.ACTION_DEVICE_INFO_SETTINGS);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        };
+
+        osAndroidView.setOnClickListener(openDeviceInfoListener);
+        osTextView.setOnClickListener(openDeviceInfoListener);
+        serialView.setOnClickListener(openDeviceInfoListener);
+
+        sizeView.setOnClickListener(v -> {
+            Intent intent = new Intent(Settings.ACTION_INTERNAL_STORAGE_SETTINGS);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        });
+
+        handler.post(batteryUpdater);
 
         // Set sort button
         mSortField = AppsAdapter.SORT_FIELD.values()[sharedPreferences.getInt(SettingsProvider.KEY_SORT_FIELD, 0)];
@@ -340,6 +459,12 @@ public class MainActivity extends Activity
         super.onResume();
         activityHasFocus = true;
 
+        View fade = findViewById(R.id.fade_overlay);
+        if (fade != null) {
+            fade.setAlpha(0f);
+            fade.clearAnimation();
+        }
+
         String[] permissions = {
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -360,6 +485,11 @@ public class MainActivity extends Activity
         IntentFilter filter = new IntentFilter(Intent.ACTION_PACKAGE_REMOVED);
         filter.addDataScheme("package");
         registerReceiver(uninstallReceiver, filter);
+
+        TextView sizeView = findViewById(R.id.size);
+        File internal = Environment.getDataDirectory();
+        String info = getStorageInfo(internal);
+        sizeView.setText(info);
     }
 
     private ImageView mSelectedImageView;
@@ -399,6 +529,10 @@ public class MainActivity extends Activity
                 }
             }
         }
+        TextView sizeView = findViewById(R.id.size);
+        File internal = Environment.getDataDirectory();
+        String info = getStorageInfo(internal);
+        sizeView.setText(info);
     }
 
     public String getSelectedPackage() {
@@ -411,6 +545,7 @@ public class MainActivity extends Activity
         boolean names = sharedPreferences.getBoolean(SettingsProvider.KEY_CUSTOM_NAMES, DEFAULT_NAMES);
         int opacity = sharedPreferences.getInt(SettingsProvider.KEY_CUSTOM_OPACITY, DEFAULT_OPACITY);
         int theme = sharedPreferences.getInt(SettingsProvider.KEY_CUSTOM_THEME, DEFAULT_THEME);
+        boolean editMode = sharedPreferences.getBoolean(SettingsProvider.KEY_EDITMODE, false);
         int scale = getPixelFromDip(SCALES[sharedPreferences.getInt(SettingsProvider.KEY_CUSTOM_SCALE, DEFAULT_SCALE)]);
         appGridView.setColumnWidth(scale);
         if (theme < THEMES.length) {
@@ -426,13 +561,59 @@ public class MainActivity extends Activity
             dCopy.setAlpha(255 * opacity / 10);
             backgroundImageView.setImageDrawable(dCopy);
         }
+        // Pico Default Style
+        LinearLayout topBar = findViewById(R.id.topBar);
+        LinearLayout bottomBar = findViewById(R.id.bottomBar);
+        TextView sizeView = findViewById(R.id.size);
+        TextView modelNumber = findViewById(R.id.model_number);
+        TextView osVersion = findViewById(R.id.os_version);
+        TextView androidVersion = findViewById(R.id.android_version);
+        TextView batteryView = findViewById(R.id.battery);
+
+        TextView editModeLabel = findViewById(R.id.edit_mode_label);
+
+        if (editMode) {
+            modelNumber.setVisibility(View.GONE);
+            osVersion.setVisibility(View.GONE);
+            androidVersion.setVisibility(View.GONE);
+            sizeView.setVisibility(View.GONE);
+            batteryView.setVisibility(View.GONE);
+            editModeLabel.setText("\uD83D\uDEE0   \uD83D\uDEE0   \uD83D\uDEE0   \uD83D\uDEE0   \uD83D\uDEE0   \uD83D\uDEE0   \uD83D\uDEE0   \uD83D\uDEE0   \uD83D\uDEE0   \uD83D\uDEE0");
+            editModeLabel.setVisibility(View.VISIBLE);
+            int red = Color.parseColor("#FF5555");
+            topBar.setBackgroundColor(red);
+            bottomBar.setBackgroundColor(red);
+        } else if (theme == 0 && AndroidPlatform.isPicoHeadset()) {
+            Drawable bar = getDrawable(R.drawable.bar).mutate();
+            bar.setAlpha(255 * opacity / 10);
+            modelNumber.setVisibility(View.VISIBLE);
+            osVersion.setVisibility(View.VISIBLE);
+            androidVersion.setVisibility(View.VISIBLE);
+            sizeView.setVisibility(View.VISIBLE);
+            batteryView.setVisibility(View.VISIBLE);
+            editModeLabel.setVisibility(View.GONE);
+            topBar.setBackground(bar);
+            bottomBar.setBackground(bar);
+        } else {
+            modelNumber.setVisibility(View.VISIBLE);
+            osVersion.setVisibility(View.VISIBLE);
+            androidVersion.setVisibility(View.VISIBLE);
+            sizeView.setVisibility(View.VISIBLE);
+            batteryView.setVisibility(View.VISIBLE);
+            editModeLabel.setVisibility(View.GONE);
+            topBar.setBackground(null);
+            bottomBar.setBackground(null);
+        }
 
         // set context
         scale += getPixelFromDip(8);
-        boolean editMode = sharedPreferences.getBoolean(SettingsProvider.KEY_EDITMODE, false);
         appGridView.setAdapter(new AppsAdapter(this, editMode, scale, names));
         groupPanelGridView.setAdapter(new GroupsAdapter(this, editMode));
         groupPanelGridView.setNumColumns(Math.min(groupPanelGridView.getAdapter().getCount(), GroupsAdapter.MAX_GROUPS - 1));
+
+        File internal = Environment.getDataDirectory();
+        String info = getStorageInfo(internal);
+        sizeView.setText(info);
     }
 
     public void setTheme(ImageView[] views, int index) {
@@ -473,6 +654,7 @@ public class MainActivity extends Activity
     private void showSettingsMain() {
 
         Dialog dialog = showPopup(R.layout.dialog_settings);
+        settingsMainDialog = dialog;
         SettingsGroup apps = dialog.findViewById(R.id.settings_apps);
         boolean editMode = !sharedPreferences.getBoolean(SettingsProvider.KEY_EDITMODE, false);
         apps.setIcon(editMode ? R.drawable.ic_editing_on : R.drawable.ic_editing_off);
@@ -530,10 +712,16 @@ public class MainActivity extends Activity
 
     private void showSettingsLook() {
         Dialog d = showPopup(R.layout.dialog_look);
+        settingsLookDialog = d;
         d.setOnDismissListener(dialogInterface -> isSettingsLookOpen = false);
         d.findViewById(R.id.open_accesibility).setOnClickListener(view -> {
             ButtonManager.isAccessibilityInitialized(this);
             ButtonManager.requestAccessibility(this);
+        });
+        d.findViewById(R.id.open_stats).setOnClickListener(view -> {
+            Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            view.getContext().startActivity(intent);
         });
         Switch names = d.findViewById(R.id.checkbox_names);
         names.setChecked(sharedPreferences.getBoolean(SettingsProvider.KEY_CUSTOM_NAMES, DEFAULT_NAMES));
@@ -646,6 +834,27 @@ public class MainActivity extends Activity
             editor.putBoolean(SettingsProvider.KEY_AUTORUN, value);
             editor.apply();
         });
+        View pico_docked = d.findViewById(R.id.pico_docked);
+        if(AndroidPlatform.isPicoHeadset())
+            runOnUiThread(() -> pico_docked.setVisibility(View.VISIBLE));
+        Switch near = d.findViewById(R.id.checkbox_near);
+        near.setChecked(sharedPreferences.getBoolean(SettingsProvider.KEY_NEAR, DEFAULT_NEAR));
+        near.setOnCheckedChangeListener((compoundButton, value) -> {
+
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(SettingsProvider.KEY_NEAR, value);
+            editor.apply();
+
+            if (settingsMainDialog != null && settingsMainDialog.isShowing()) {
+                settingsMainDialog.dismiss();
+            }
+
+            if (settingsLookDialog != null && settingsLookDialog.isShowing()) {
+                settingsLookDialog.dismiss();
+            }
+
+            MainActivity.reset(MainActivity.this);
+        });
     }
 
 
@@ -697,8 +906,6 @@ public class MainActivity extends Activity
     private int getPixelFromDip(int dip) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dip, getResources().getDisplayMetrics());
     }
-
-    private final Handler handler = new Handler();
 
     public boolean openApp(ApplicationInfo app) {
         settingsProvider.updateRecent(app.packageName, System.currentTimeMillis());

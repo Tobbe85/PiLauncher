@@ -44,4 +44,6 @@
         <item>↑ Datum instalace</item>
     </string-array>
     <string name="clear_cache">Vymazat mezipaměť ikon</string>
+    <string name="show_near">Dokovaný Režim</string>
+    <string name="stats_tooltip">Změnit oprávnění \"STATS\"</string>
 </resources>

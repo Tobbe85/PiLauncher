@@ -29,6 +29,8 @@ So I decided to expand on the original and add some useful enhancements.
 - 💾 Displays **available storage space**
 - 🖼️ Fetches the needed **icons for Meta, Pico and Sidequest Apps in landscape, square and rounded**
 - 🖼️ Fallback app icons matches with your choosed icon style
+- 📥 Added a **"Docked Mode"** switch in Settings
+  → You can choose between normal window style and docked style
 
 ---
 
@@ -38,6 +40,9 @@ So I decided to expand on the original and add some useful enhancements.
 
 ![Screenshot](https://github.com/Tobbe85/PiLauncher/blob/main/MainLauncher.jpeg?raw=true)
 ![Screenshot](https://github.com/Tobbe85/PiLauncher/blob/main/AppDetails.jpeg?raw=true)
+
+### 📥 New Dock Mode for Pico Devices 📥
+![Screenshot](https://github.com/Tobbe85/PiLauncher/blob/main/LauncherDocked.jpeg?raw=true)
 
 ### These Icon Styles are available:
 

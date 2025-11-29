@@ -44,4 +44,6 @@
         <item>↑ Installationsdato</item>
     </string-array>
     <string name="clear_cache">Ryd ikon-cache</string>
+    <string name="show_near">Dokket Tilstand</string>
+    <string name="stats_tooltip">Ændr tilladelsen \"STATS\"</string>
 </resources>

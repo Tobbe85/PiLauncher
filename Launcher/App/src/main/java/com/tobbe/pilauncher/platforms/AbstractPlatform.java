@@ -349,7 +349,17 @@ public abstract class AbstractPlatform {
     }
 
     public static File pkg2path(Context context, String pkg) {
-        return new File(context.getCacheDir(), pkg + ".webp");
+        File iconDir = new File(context.getFilesDir(), "icons");
+        if (!iconDir.exists()) iconDir.mkdirs();
+
+        File newFile = new File(iconDir, pkg + ".webp");
+
+        File oldFile = new File(context.getCacheDir(), pkg + ".webp");
+        if (oldFile.exists() && !newFile.exists()) {
+            oldFile.renameTo(newFile);
+        }
+
+        return newFile;
     }
 
     public static boolean updateIcon(ImageView icon, File file, String pkg) {
@@ -439,7 +449,7 @@ public abstract class AbstractPlatform {
         return false;
     }
 
-    protected static boolean isVirtualRealityApp(ApplicationInfo app) {
+    public static boolean isVirtualRealityApp(ApplicationInfo app) {
         String[] nonVrApps = {      //move to tools category
                 "com.pico4.settings",   //app that shows android settings
                 "com.pico.browser",     //in-build pico web browser
@@ -453,13 +463,13 @@ public abstract class AbstractPlatform {
         }
         if (app.metaData != null) {
             for (String key : app.metaData.keySet()) {
-                if (key.startsWith("notch.config")) {
-                    return true;
-                }
                 if (key.startsWith("com.oculus")) {
                     return true;
                 }
-                if (key.startsWith("pvr.")) {
+                if (key.startsWith("pvr.app.type")) {
+                    return true;
+                }
+                if (key.startsWith("com.picovr.type")) {
                     return true;
                 }
                 if (key.contains("vr.application.mode")) {
