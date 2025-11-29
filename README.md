@@ -1,4 +1,4 @@
-## 🚀 My Vision of PiLauncher - [Download Here](https://github.com/Tobbe85/PiLauncher/releases/download/2.0/PiLauncher_2.0.apk)
+## 🚀 My Vision of PiLauncher - [Download Here](https://github.com/Tobbe85/PiLauncher/releases/download/2.1/PiLauncher_2.1.apk)
 
 The original PiLauncher was already close to perfect — sleek, functional, and lightweight.  
 Still, I felt a few features were missing for users like myself.  
