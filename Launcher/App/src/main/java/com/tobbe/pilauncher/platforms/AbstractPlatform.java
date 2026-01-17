@@ -341,6 +341,8 @@ public abstract class AbstractPlatform {
     public static AbstractPlatform getPlatform(ApplicationInfo app) {
         if (app.packageName.startsWith(PSPPlatform.PACKAGE_PREFIX)) {
             return new PSPPlatform();
+        } else if (app.packageName.startsWith(WinlatorPlatform.PACKAGE_PREFIX)) {
+            return new WinlatorPlatform();
         } else if (isVirtualRealityApp(app)) {
             return new VRPlatform();
         } else {
