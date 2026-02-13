@@ -690,12 +690,11 @@ public class MainActivity extends Activity
             intent.setPackage("com.android.settings");
             startActivity(intent);
         });
-        if (AbstractPlatform.isMagicLeapHeadset()) {
+        if (AbstractPlatform.isMagicLeapHeadset() || AbstractPlatform.isOculusHeadset()) {
             dialog.findViewById(R.id.settings_device).setVisibility(View.GONE);
         }
-        if (!AbstractPlatform.isOculusHeadset()) {
-            dialog.findViewById(R.id.settings_tweaks).setVisibility(View.GONE);
-        }
+        //TODO: tweaks could be deleted as none of them work nowadays
+        dialog.findViewById(R.id.settings_tweaks).setVisibility(View.GONE);
     }
 
     private void showUpdateMain() {
