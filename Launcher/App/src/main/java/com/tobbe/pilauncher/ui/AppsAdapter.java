@@ -231,6 +231,11 @@ public class AppsAdapter extends BaseAdapter
             });
         } else {
             holder.layout.setOnClickListener(view -> {
+                //Simple way on Quest to prevent graphical issues
+                if (AbstractPlatform.isOculusHeadset()) {
+                    mainActivityContext.openApp(currentApp);
+                    return;
+                }
 
                 view.post(() -> {
 
