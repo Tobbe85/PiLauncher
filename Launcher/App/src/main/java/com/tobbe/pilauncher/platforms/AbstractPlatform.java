@@ -62,6 +62,10 @@ public abstract class AbstractPlatform {
     private static final String ICONS_FALLBACK_URL = "https://pilauncher.lwiczka.pl/get_icon.php?id=";
     protected static final HashMap<String, Drawable> iconCache = new HashMap<>();
     protected static final HashSet<String> ignoredIcons = new HashSet<>();
+    boolean keepAspectRatio = MainActivity.sharedPreferences.getBoolean(
+            SettingsProvider.KEY_ASPECTRATIO,
+            MainActivity.DEFAULT_ASPECTRATIO
+    );
 
     public static Bitmap applyRoundedCorners(Bitmap bitmap, float dpRadius) {
         int width = bitmap.getWidth();
@@ -278,22 +282,26 @@ public abstract class AbstractPlatform {
 
             Bitmap raw = drawableToBitmap(appIcon);
 
-            Bitmap styledIcon = null;
-            switch (style) {
-                case 0: // Rechteck
-                    styledIcon = Bitmap.createScaledBitmap(raw, 450, 253, true);
-                    break;
-                case 1: // Quadrat
-                    styledIcon = Bitmap.createScaledBitmap(raw, 253, 253, true);
-                    break;
-                case 2: // Rund
-                    styledIcon = Bitmap.createScaledBitmap(raw, 253, 253, true);
-                    styledIcon = makeRounded(styledIcon);
-                    break;
-            }
+            if (!keepAspectRatio) {
+                Bitmap styledIcon = null;
+                switch (style) {
+                    case 0: // Rechteck
+                        styledIcon = Bitmap.createScaledBitmap(raw, 450, 253, true);
+                        break;
+                    case 1: // Quadrat
+                        styledIcon = Bitmap.createScaledBitmap(raw, 253, 253, true);
+                        break;
+                    case 2: // Rund
+                        styledIcon = Bitmap.createScaledBitmap(raw, 253, 253, true);
+                        styledIcon = makeRounded(styledIcon);
+                        break;
+                }
 
-            if (styledIcon != null) {
-                icon.setImageBitmap(styledIcon);
+                if (styledIcon != null) {
+                    icon.setImageBitmap(styledIcon);
+                }
+            } else {
+                icon.setImageBitmap(drawableToBitmap(appIcon));
             }
         }
 
@@ -441,6 +449,11 @@ public abstract class AbstractPlatform {
         return vendor.startsWith("PICO") || vendor.startsWith("PİCO");
     }
 
+    public static boolean isPicoUltra() {
+        String vendor = Build.DEVICE.toUpperCase();
+        return vendor.startsWith("SPARROW");
+    }
+
     public static boolean isPico3Pro() {
         if(isPicoHeadset()) {
             String osVersion = Build.DISPLAY;
@@ -454,13 +467,14 @@ public abstract class AbstractPlatform {
                 "com.pico4.settings",   //app that shows android settings
                 "com.pico.browser",     //in-build pico web browser
                 "com.ss.android.ttvr",  //pico video
-                "com.pvr.mrc"           //pico's mixed reality capture
+                "com.pvr.mrc",           //pico's mixed reality capture
         };
         for (String nonVrApp : nonVrApps) {
             if (app.packageName.startsWith(nonVrApp)) {
                 return false;
             }
         }
+
         if (app.metaData != null) {
             for (String key : app.metaData.keySet()) {
                 if (key.startsWith("com.oculus")) {
@@ -473,6 +487,9 @@ public abstract class AbstractPlatform {
                     return true;
                 }
                 if (key.contains("vr.application.mode")) {
+                    return true;
+                }
+                if (key.contains("com.yvr.intent.category.VR")) {
                     return true;
                 }
             }

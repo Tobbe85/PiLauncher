@@ -62,15 +62,5 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal">
-
-        <com.tobbe.pilauncher.ui.SettingsGroup
-            android:id="@+id/settings_tweaks"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:tooltipText="@string/settings_tweaks"
-            app:icon="@drawable/ic_tweaks"
-            app:text="@string/settings_tweaks"
-            tools:ignore="UnusedAttribute" />
-    </LinearLayout>
+        android:layout_gravity="center_horizontal"/>
 </LinearLayout>

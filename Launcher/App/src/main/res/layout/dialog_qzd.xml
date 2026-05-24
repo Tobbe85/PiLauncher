@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="49dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/qzd_title"
+            android:layout_width="410dp"
+            android:layout_height="match_parent"
+            android:paddingBottom="20dp"
+            android:text="QuestZDoom"
+            android:textColor="@android:color/white"
+            android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/info_qzd"
+            android:layout_width="41dp"
+            android:layout_height="37dp"
+            android:layout_weight="0"
+            android:background="@drawable/ic_info" />
+
+        <Button
+            android:id="@+id/back_button"
+            android:layout_width="41dp"
+            android:layout_height="37dp"
+            android:layout_weight="0"
+            android:background="@drawable/ic_back" />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="195dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/button_qzd1"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bkg_dialog"
+            android:text="Doom"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/button_qzd2"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bkg_dialog"
+            android:text="Doom 2"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/button_qzd3"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bkg_dialog"
+            android:text="Free doom (Phase 1)"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/button_qzd4"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bkg_dialog"
+            android:text="Free Doom (Phase 2)"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/button_qzd5"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bkg_dialog"
+            android:text="Heretic"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/button_qzd6"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bkg_dialog"
+            android:text="Hexen"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/button_qzd7"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bkg_dialog"
+            android:text="Chex Quest 3"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/button_qzd8"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bkg_dialog"
+            android:text="Strife"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/button_qzd9"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bkg_dialog"
+            android:text="HacX"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/button_qzd10"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bkg_dialog"
+            android:text="Adventures of Square"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/button_qzd11"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bkg_dialog"
+            android:text="Return of the Triad"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/button_qzd12"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bkg_dialog"
+            android:text="Project Osiris"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="100dp"
+        android:layout_height="20dp" />
+
+    <Space
+        android:layout_width="450dp"
+        android:layout_height="1dp" />
+
+
+</LinearLayout>

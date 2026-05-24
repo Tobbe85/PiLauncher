@@ -1,16 +1,24 @@
-# Latest version: [PiLauncher_2.1.apk](https://github.com/Tobbe85/PiLauncher/releases/download/2.1/PiLauncher_2.1.apk)
+# Latest version: [PiLauncher_2.3.apk](https://github.com/Tobbe85/PiLauncher/releases/download/2.3/PiLauncher_2.3.apk)
 
 ## Changelog
 
-**v2.1**
-- Now the Default Style matches the Pico Style on Pico
-- Engine Text got an own row in Detail App View
-- Improved Settings Symbol in Main View
-- In PiLauncher Settings you can now choose the Mode (Docked / Windowed) on Pico
-- Updates "Available Storage" Text directly after deleting an app
-- Click on the "Available Storage" Info opens the Storage Manager
-- Added a Battery Indicator on bottom row
-- Long Press on Main View activates or deactivates "Edit Mode"
-- Added an own WebView instead of open the Browser for Game Information
-- Start Animation by clicking on an app (Zoom & Fade)
-- Icons will be stored in /data/data/com.tobbe.pilauncher/files now
+**v2.3**
+
+## Main Window
+- Improved overall visual appearance and UI polish
+- **Added an "All Games Usage Stats" button**
+---
+## App Details
+- Redesigned the **App Details** view
+- Added a **Performance** button to open the Pico Performance Center *(Pico 4 Ultra only)*
+- **Added a "Per Game Usage Stats" button**
+- Added version code and install date next to the app version
+---
+## Other Changes
+- Fixed the startup animation for 2D apps
+- Added a setting to preserve icon aspect ratios
+- **Added mini launchers for (Team Beef):**
+  - **JKXR**
+  - **Lambda1VR**
+  - **RazeXR**
+  - **QuestZDoom**

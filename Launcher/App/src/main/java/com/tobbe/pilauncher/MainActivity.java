@@ -2,12 +2,15 @@ package com.tobbe.pilauncher;
 
 import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Environment;
 import android.os.StatFs;
 import android.os.BatteryManager;
 import android.provider.Settings;
 import android.view.MotionEvent;
 import com.tobbe.pilauncher.platforms.AndroidPlatform;
+import com.tobbe.pilauncher.stats.AllGameStatsDialog;
+import com.tobbe.pilauncher.stats.UsageStatsStore;
 import com.tobbe.pilauncher.ui.AppsAdapter;
 import android.widget.LinearLayout;
 import android.Manifest;
@@ -33,15 +36,17 @@ import android.os.Handler;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.SeekBar;
-import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.view.ViewGroup;
+import android.widget.ListView;
+import android.widget.PopupWindow;
 
 import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.model.Image;
@@ -68,8 +73,9 @@ import br.tiagohm.markdownview.css.styles.Github;
 
 public class MainActivity extends Activity
 {
-    private static final String CUSTOM_THEME = "theme.png";
+    public static final String CUSTOM_THEME = "theme.png";
     private static final boolean DEFAULT_NAMES = true;
+    public static final boolean DEFAULT_ASPECTRATIO = false;
     private static final int DEFAULT_OPACITY = 7;
     public static final int DEFAULT_SCALE = 2;
     private static final int DEFAULT_THEME = 0;
@@ -80,7 +86,7 @@ public class MainActivity extends Activity
     private Dialog settingsMainDialog;
 
     private static final int[] SCALES = {82, 99, 125, 165, 236};
-    private static final int[] THEMES = {
+    public static final int[] THEMES = {
             R.drawable.bkg_default,
             R.drawable.bkg_glass,
             R.drawable.bkg_rgb,
@@ -95,6 +101,8 @@ public class MainActivity extends Activity
     };
     private static final boolean DEFAULT_AUTORUN = true;
     public static final boolean DEFAULT_NEAR = false;
+    public static final boolean DEFAULT_CHECK_UPDATE = true;
+    public static boolean DEFAULT_INTEGRATED_LAUNCHER = true;
     public static final String EMULATOR_PACKAGE = "org.ppsspp.ppssppvr";
 
     private static ImageView[] selectedThemeImageViews;
@@ -109,6 +117,8 @@ public class MainActivity extends Activity
     private SettingsProvider settingsProvider;
     private AppsAdapter.SORT_FIELD mSortField = AppsAdapter.SORT_FIELD.APP_NAME;
     private AppsAdapter.SORT_ORDER mSortOrder = AppsAdapter.SORT_ORDER.ASCENDING;
+    private static final int BACKUP_REQUEST = 1001;
+    private static final int RESTORE_REQUEST = 1002;
 
     public static void reset(Context context) {
         try {
@@ -121,6 +131,81 @@ public class MainActivity extends Activity
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void checkAndRequestUsageStatsPermission() {
+        if (AllGameStatsDialog.hasUsageStatsPermission(this)) {
+            sharedPreferences.edit()
+                    .putBoolean(SettingsProvider.KEY_STATS_DECLINED, false)
+                    .apply();
+            updateStatsIcon();
+            return;
+        }
+
+        boolean declined = sharedPreferences.getBoolean(
+                SettingsProvider.KEY_STATS_DECLINED, false);
+
+        if (declined) return;
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.perm_usagestats))
+                .setMessage(getString(R.string.perm_question) + "\n\n" + getString(R.string.perm_info))
+                .setPositiveButton(getString(R.string.perm_yes), (d, which) -> {
+                    Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    updateStatsIcon();
+                })
+                .setNegativeButton(getString(R.string.perm_no), (d, which) -> {
+                    sharedPreferences.edit()
+                            .putBoolean(SettingsProvider.KEY_STATS_DECLINED, true)
+                            .apply();
+                    updateStatsIcon();
+                })
+                .create();
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false);
+
+        dialog.setOnShowListener(d -> {
+            int bg   = Color.parseColor("#2d2d2d");
+            int gold = Color.parseColor("#F2D89F");
+            int text = Color.parseColor("#EAEAEA");
+
+            if (dialog.getWindow() != null) {
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(bg));
+            }
+
+            TextView title = dialog.findViewById(
+                    getResources().getIdentifier("alertTitle", "id", "android"));
+            if (title != null) title.setTextColor(gold);
+
+            TextView message = dialog.findViewById(android.R.id.message);
+            if (message != null) message.setTextColor(text);
+
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(gold);
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(gold);
+        });
+
+        dialog.show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String[] permissions,
+                                           int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        boolean allGranted = true;
+        for (int result : grantResults) {
+            if (result != PackageManager.PERMISSION_GRANTED) {
+                allGranted = false;
+                break;
+            }
+        }
+
+        if (allGranted) {
+            reloadUI();
         }
     }
 
@@ -297,6 +382,13 @@ public class MainActivity extends Activity
             return true;
         });
 
+        View statsAllGame = findViewById(R.id.allstats);
+        statsAllGame.setOnClickListener(v -> {
+            new AllGameStatsDialog(this, this::updateStatsIcon).show();
+        });
+
+        updateStatsIcon();
+
         TextView osTextView = findViewById(R.id.os_version);
         String picoOsVersion = getSystemProperty("ro.pui.build.version", "?");
         osTextView.setText("⚙️  " + picoOsVersion);
@@ -334,18 +426,48 @@ public class MainActivity extends Activity
         handler.post(batteryUpdater);
 
         // Set sort button
-        mSortField = AppsAdapter.SORT_FIELD.values()[sharedPreferences.getInt(SettingsProvider.KEY_SORT_FIELD, 0)];
-        mSortOrder = AppsAdapter.SORT_ORDER.values()[sharedPreferences.getInt(SettingsProvider.KEY_SORT_ORDER, 0)];
-        Spinner sortSpinner = findViewById(R.id.sort);
-        ArrayAdapter<CharSequence> sortAdapter = ArrayAdapter.createFromResource(this, R.array.sort_options, R.layout.spinner_item);
-        sortAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        sortSpinner.setAdapter(sortAdapter);
-        sortSpinner.setSelection(sharedPreferences.getInt(SettingsProvider.KEY_SORT_SPINNER, 0));
-        sortSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        ImageView sortButton = findViewById(R.id.sortButton);
+
+        sortButton.setOnClickListener(v -> {
+            String[] sortOptions = getResources().getStringArray(R.array.sort_options);
+
+            ListView listView = new ListView(this);
+            listView.setDivider(null);
+            listView.setDividerHeight(0);
+            listView.setCacheColorHint(Color.TRANSPARENT);
+            listView.setBackgroundColor(Color.TRANSPARENT);
+            listView.setPadding(0, 8, 0, 8);
+            listView.setClipToPadding(false);
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                    this,
+                    R.layout.spinner_item,
+                    sortOptions
+            ) {
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent) {
+                    TextView view = (TextView) super.getView(position, convertView, parent);
+                    view.setPadding(24, 14, 24, 14);
+                    view.setMinHeight(48);
+                    return view;
+                }
+            };
+
+            listView.setAdapter(adapter);
+
+            PopupWindow popupWindow = new PopupWindow(
+                    listView,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    true
+            );
+
+            popupWindow.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#CC1E1E1E")));
+            popupWindow.setOutsideTouchable(true);
+            popupWindow.setElevation(8f);
+
+            listView.setOnItemClickListener((parent, view, pos, id) -> {
                 switch (pos) {
-                    //case 0 = default
                     case 1:
                         mSortField = AppsAdapter.SORT_FIELD.APP_NAME;
                         mSortOrder = AppsAdapter.SORT_ORDER.DESCENDING;
@@ -372,22 +494,24 @@ public class MainActivity extends Activity
                         break;
                 }
 
-                //update UI
                 if (appGridView.getAdapter() != null) {
                     ((AppsAdapter) appGridView.getAdapter()).sort(mSortField, mSortOrder);
                 }
 
-                //persist sort settings
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putInt(SettingsProvider.KEY_SORT_SPINNER, pos);
                 editor.putInt(SettingsProvider.KEY_SORT_FIELD, mSortField.ordinal());
                 editor.putInt(SettingsProvider.KEY_SORT_ORDER, mSortOrder.ordinal());
                 editor.apply();
-            }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-                //nothing here
+                popupWindow.dismiss();
+            });
+
+            popupWindow.setClippingEnabled(false);
+            if (statsAllGame.getVisibility() == View.VISIBLE) {
+                popupWindow.showAsDropDown(v, -20, 20);
+            } else {
+                popupWindow.showAsDropDown(v, -95, 20);
             }
         });
 
@@ -400,6 +524,9 @@ public class MainActivity extends Activity
     private long lastUpdateCheck = 0L;
 
     private void checkForUpdates(View update) {
+        if (!sharedPreferences.getBoolean(SettingsProvider.KEY_CHECK_UPDATE, DEFAULT_CHECK_UPDATE)) {
+            return;
+        }
         //once every 4 hours
         long updateInterval = 1000 * 60 * 60 * 4;
         if(lastUpdateCheck + updateInterval > System.currentTimeMillis()) {
@@ -428,8 +555,7 @@ public class MainActivity extends Activity
             try {
                 newestVersion = Integer.parseInt(string.trim());
             } catch (NumberFormatException e) {
-                // Handle the exception here
-                newestVersion = 0; // Set a default value
+                newestVersion = 0;
             }
             if(versionCode < newestVersion){
                 runOnUiThread(() -> update.setVisibility(View.VISIBLE));
@@ -476,6 +602,8 @@ public class MainActivity extends Activity
             View update = findViewById(R.id.update);
             checkForUpdates(update);
             reloadUI();
+            checkAndRequestUsageStatsPermission();
+            new UsageStatsStore(this).syncFromAndroidUsageStats();
         } else {
             requestPermissions(permissions, 0);
         }
@@ -490,6 +618,8 @@ public class MainActivity extends Activity
         File internal = Environment.getDataDirectory();
         String info = getStorageInfo(internal);
         sizeView.setText(info);
+
+        updateStatsIcon();
     }
 
     private ImageView mSelectedImageView;
@@ -509,7 +639,9 @@ public class MainActivity extends Activity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == PICK_ICON_CODE) {
+
             if (resultCode == RESULT_OK) {
                 for (Image image : ImagePicker.getImages(data)) {
                     ((AppsAdapter) appGridView.getAdapter()).onImageSelected(image.getPath(), mSelectedImageView);
@@ -518,7 +650,9 @@ public class MainActivity extends Activity
             } else {
                 ((AppsAdapter) appGridView.getAdapter()).onImageSelected(null, mSelectedImageView);
             }
+
         } else if (requestCode == PICK_THEME_CODE) {
+
             if (resultCode == RESULT_OK) {
                 for (Image image : ImagePicker.getImages(data)) {
                     Bitmap bitmap = ImageUtils.getResizedBitmap(BitmapFactory.decodeFile(image.getPath()), 1280);
@@ -528,7 +662,56 @@ public class MainActivity extends Activity
                     break;
                 }
             }
+
+        } else if (requestCode == BACKUP_REQUEST) {
+
+            if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                try {
+                    BackupRestoreManager.backupAppData(this, data.getData());
+
+                    Toast.makeText(this,
+                            getString(R.string.backup_created),
+                            Toast.LENGTH_LONG).show();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+
+                    Toast.makeText(this,
+                            e.getMessage(),
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+
+        } else if (requestCode == RESTORE_REQUEST) {
+
+            if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                try {
+
+                    BackupRestoreManager.restoreAppData(this, data.getData());
+
+                    Intent intent = getPackageManager()
+                            .getLaunchIntentForPackage(getPackageName());
+
+                    if (intent != null) {
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                        startActivity(intent);
+                    }
+
+                    Runtime.getRuntime().exit(0);
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+
+                    Toast.makeText(this,
+                            e.getMessage(),
+                            Toast.LENGTH_LONG).show();
+                }
+            }
         }
+
         TextView sizeView = findViewById(R.id.size);
         File internal = Environment.getDataDirectory();
         String info = getStorageInfo(internal);
@@ -601,11 +784,10 @@ public class MainActivity extends Activity
             sizeView.setVisibility(View.VISIBLE);
             batteryView.setVisibility(View.VISIBLE);
             editModeLabel.setVisibility(View.GONE);
-            topBar.setBackground(null);
-            bottomBar.setBackground(null);
+            topBar.setBackgroundColor(Color.argb(120, 0, 0, 0));
+            bottomBar.setBackgroundColor(Color.argb(120, 0, 0, 0));
         }
 
-        // set context
         scale += getPixelFromDip(8);
         appGridView.setAdapter(new AppsAdapter(this, editMode, scale, names));
         groupPanelGridView.setAdapter(new GroupsAdapter(this, editMode));
@@ -646,6 +828,7 @@ public class MainActivity extends Activity
         dialog.show();
         dialog.findViewById(R.id.layout).requestLayout();
         dialog.getWindow().setBackgroundDrawableResource(R.drawable.bkg_dialog);
+
         return dialog;
     }
 
@@ -683,7 +866,6 @@ public class MainActivity extends Activity
             }
         });
         dialog.findViewById(R.id.settings_platforms).setOnClickListener(view -> showSettingsPlatforms());
-        dialog.findViewById(R.id.settings_tweaks).setOnClickListener(view -> showSettingsTweaks());
         dialog.findViewById(R.id.settings_device).setOnClickListener(view -> {
             Intent intent = new Intent();
             intent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -693,8 +875,6 @@ public class MainActivity extends Activity
         if (AbstractPlatform.isMagicLeapHeadset() || AbstractPlatform.isOculusHeadset()) {
             dialog.findViewById(R.id.settings_device).setVisibility(View.GONE);
         }
-        //TODO: tweaks could be deleted as none of them work nowadays
-        dialog.findViewById(R.id.settings_tweaks).setVisibility(View.GONE);
     }
 
     private void showUpdateMain() {
@@ -727,6 +907,24 @@ public class MainActivity extends Activity
         names.setOnCheckedChangeListener((compoundButton, value) -> {
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putBoolean(SettingsProvider.KEY_CUSTOM_NAMES, value);
+            editor.apply();
+            reloadUI();
+        });
+
+        Switch integrated_launcher = d.findViewById(R.id.checkbox_launcher);
+        integrated_launcher.setChecked(sharedPreferences.getBoolean(SettingsProvider.KEY_INTEGRATED_LAUNCHER, DEFAULT_INTEGRATED_LAUNCHER));
+        integrated_launcher.setOnCheckedChangeListener((compoundButton, value) -> {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(SettingsProvider.KEY_INTEGRATED_LAUNCHER, value);
+            editor.apply();
+            reloadUI();
+        });
+
+        Switch aspectratio = d.findViewById(R.id.checkbox_aspectratio);
+        aspectratio.setChecked(sharedPreferences.getBoolean(SettingsProvider.KEY_ASPECTRATIO, DEFAULT_ASPECTRATIO));
+        aspectratio.setOnCheckedChangeListener((compoundButton, value) -> {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(SettingsProvider.KEY_ASPECTRATIO, value);
             editor.apply();
             reloadUI();
         });
@@ -791,7 +989,6 @@ public class MainActivity extends Activity
         for (int i = 0; i < views.length; i++) {
             int index = i;
             views[i].setOnClickListener(view12 -> {
-                //noinspection NonStrictComparisonCanBeEquality
                 if (index >= THEMES.length) {
                     selectedThemeImageViews = views;
                     ImageUtils.showImagePicker(this, PICK_THEME_CODE);
@@ -806,9 +1003,60 @@ public class MainActivity extends Activity
         clearCacheButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AbstractPlatform.clearAllIcons(MainActivity.this);
-                reloadUI();
+
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle(getString(R.string.clear_cache))
+                        .setMessage(getString(R.string.toast_deleteiconquestion))
+                        .setPositiveButton(getString(R.string.toast_yes), (dialog, which) -> {
+
+                            AbstractPlatform.clearAllIcons(MainActivity.this);
+                            reloadUI();
+
+                            Toast.makeText(
+                                    MainActivity.this,
+                                    getString(R.string.toast_icondeleted),
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        })
+                        .setNegativeButton(getString(R.string.toast_cancel), null)
+                        .show();
             }
+        });
+        //Backup PiLauncher Settings
+        d.findViewById(R.id.backup_button).setOnClickListener(v -> {
+
+            Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("application/zip");
+            intent.putExtra(Intent.EXTRA_TITLE, "PiLauncher_Backup.zip");
+
+            startActivityForResult(intent, BACKUP_REQUEST);
+        });
+        //Restore PiLauncher Settings
+        d.findViewById(R.id.restore_button).setOnClickListener(v -> {
+
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("*/*");
+
+            startActivityForResult(intent, RESTORE_REQUEST);
+        });
+
+        d.findViewById(R.id.reset_launcher).setOnClickListener(v -> {
+            new AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.toast_resetlauncher))
+                    .setMessage(getString(R.string.toast_deletesettingsquestion))
+                    .setPositiveButton(getString(R.string.toast_yes), (dialog, which) -> {
+                        sharedPreferences.edit().clear().apply();
+
+                        Toast.makeText(this, getString(R.string.toast_settingsdeleted), Toast.LENGTH_SHORT).show();
+
+                        MainActivity.reset(MainActivity.this);
+                    })
+                    .setNegativeButton(getString(R.string.toast_cancel), null)
+                    .show();
         });
 
         int style = sharedPreferences.getInt(SettingsProvider.KEY_CUSTOM_STYLE, DEFAULT_STYLE);
@@ -831,6 +1079,13 @@ public class MainActivity extends Activity
         autorun.setOnCheckedChangeListener((compoundButton, value) -> {
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putBoolean(SettingsProvider.KEY_AUTORUN, value);
+            editor.apply();
+        });
+        Switch checkupdate = d.findViewById(R.id.checkbox_update);
+        checkupdate.setChecked(sharedPreferences.getBoolean(SettingsProvider.KEY_CHECK_UPDATE, DEFAULT_CHECK_UPDATE));
+        checkupdate.setOnCheckedChangeListener((compoundButton, value) -> {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(SettingsProvider.KEY_CHECK_UPDATE, value);
             editor.apply();
         });
         View pico_docked = d.findViewById(R.id.pico_docked);
@@ -891,17 +1146,6 @@ public class MainActivity extends Activity
         d.findViewById(R.id.layout_vr).setVisibility(new VRPlatform().isSupported() ? View.VISIBLE : View.GONE);
     }
 
-    private void showSettingsTweaks() {
-        Dialog d = showPopup(R.layout.dialog_tweaks);
-
-        d.findViewById(R.id.service_app_shortcut).setOnClickListener(view -> {
-            ButtonManager.isAccessibilityInitialized(this);
-            ButtonManager.requestAccessibility(this);
-        });
-        d.findViewById(R.id.service_explore_app).setOnClickListener(view -> openAppDetails("com.oculus.explore"));
-        d.findViewById(R.id.service_os_updater).setOnClickListener(view -> openAppDetails("com.oculus.updater"));
-    }
-
     private int getPixelFromDip(int dip) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dip, getResources().getDisplayMetrics());
     }
@@ -936,5 +1180,30 @@ public class MainActivity extends Activity
         Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
         intent.setData(Uri.parse("package:" + pkg));
         startActivity(intent);
+    }
+
+    public void openPerformancetool() {
+        Intent intent = new Intent();
+        intent.setClassName(
+                "com.pico.performancetool",
+                "com.pico.performancetool.activity.MainActivity"
+        );
+        startActivity(intent);
+    }
+    private void updateStatsIcon() {
+        View statsAllGame = findViewById(R.id.allstats);
+
+        boolean hasPermission = AllGameStatsDialog.hasUsageStatsPermission(this);
+        boolean declined = sharedPreferences.getBoolean(SettingsProvider.KEY_STATS_DECLINED, false);
+
+        if (hasPermission) {
+            sharedPreferences.edit()
+                    .putBoolean(SettingsProvider.KEY_STATS_DECLINED, false)
+                    .apply();
+
+            statsAllGame.setVisibility(View.VISIBLE);
+        } else {
+            statsAllGame.setVisibility(declined ? View.GONE : View.VISIBLE);
+        }
     }
 }

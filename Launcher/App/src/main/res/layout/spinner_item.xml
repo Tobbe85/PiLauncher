@@ -8,6 +8,7 @@
     android:layout_height="wrap_content"
     android:ellipsize="marquee"
     android:textColor="@color/ef_white"
+    android:background="@android:color/transparent"
     android:shadowColor="#80000000"
     android:shadowRadius="5"
     app:strokeColor="#80000000"

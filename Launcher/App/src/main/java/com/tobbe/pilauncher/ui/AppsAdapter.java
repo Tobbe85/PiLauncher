@@ -4,9 +4,10 @@ import static com.tobbe.pilauncher.MainActivity.DEFAULT_SCALE;
 import static com.tobbe.pilauncher.MainActivity.DEFAULT_STYLE;
 import static com.tobbe.pilauncher.MainActivity.STYLES;
 import static com.tobbe.pilauncher.MainActivity.sharedPreferences;
+
+import com.tobbe.pilauncher.stats.PerGameStatsDialog;
 import com.tobbe.pilauncher.platforms.AbstractPlatform;
 
-import android.content.SharedPreferences;
 import android.os.Looper;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
@@ -23,11 +24,18 @@ import android.app.Dialog;
 import android.widget.Button;
 import android.webkit.WebView;
 import android.net.Uri;
+import android.content.pm.ResolveInfo;
 import android.view.View;
 import java.io.File;
-import androidx.browser.customtabs.CustomTabsIntent;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.Date;
+import java.util.List;
+
+import android.graphics.drawable.GradientDrawable;
+import android.util.TypedValue;
+import android.view.ViewGroup;
 import android.content.Intent;
-import android.net.Uri;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -44,12 +52,6 @@ import android.util.Log;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -62,7 +64,6 @@ import com.tobbe.pilauncher.ImageUtils;
 import com.tobbe.pilauncher.MainActivity;
 import com.tobbe.pilauncher.R;
 import com.tobbe.pilauncher.SettingsProvider;
-import com.tobbe.pilauncher.platforms.AbstractPlatform;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -70,10 +71,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.*;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 public class AppsAdapter extends BaseAdapter
@@ -90,6 +89,7 @@ public class AppsAdapter extends BaseAdapter
     private final boolean showTextLabels;
     private final int itemScale;
     private final SettingsProvider settingsProvider;
+    private static boolean needsreload = false;
 
     public enum SORT_FIELD { APP_NAME, RECENT_DATE, INSTALL_DATE }
     public enum SORT_ORDER { ASCENDING, DESCENDING }
@@ -141,6 +141,11 @@ public class AppsAdapter extends BaseAdapter
     public View getView(int position, View convertView, ViewGroup parent)
     {
         ViewHolder holder;
+
+        boolean integrated_Launcher = sharedPreferences.getBoolean(
+                SettingsProvider.KEY_INTEGRATED_LAUNCHER,
+                MainActivity.DEFAULT_INTEGRATED_LAUNCHER
+        );
 
         final ApplicationInfo currentApp = appList.get(position);
         LayoutInflater inflater = (LayoutInflater) mainActivityContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -231,12 +236,27 @@ public class AppsAdapter extends BaseAdapter
             });
         } else {
             holder.layout.setOnClickListener(view -> {
-                //Simple way on Quest to prevent graphical issues
-                if (AbstractPlatform.isOculusHeadset()) {
-                    mainActivityContext.openApp(currentApp);
+
+                if ("com.drbeef.lambda1vr".equals(currentApp.packageName) && integrated_Launcher)  {
+
+                    new com.tobbe.pilauncher.tblauncher.TBLambda1VR(mainActivityContext).show();
                     return;
                 }
+                if ("com.drbeef.jkxr".equals(currentApp.packageName) && integrated_Launcher) {
 
+                    new com.tobbe.pilauncher.tblauncher.TBJKXR(mainActivityContext).show();
+                    return;
+                }
+                if ("com.drbeef.razexr".equals(currentApp.packageName) && integrated_Launcher) {
+
+                    new com.tobbe.pilauncher.tblauncher.TBRazeXR(mainActivityContext).show();
+                    return;
+                }
+                if ("com.drbeef.questzdoom".equals(currentApp.packageName) && integrated_Launcher) {
+
+                    new com.tobbe.pilauncher.tblauncher.TBQuestZDoom(mainActivityContext).show();
+                    return;
+                }
                 view.post(() -> {
 
                     holder.layout.animate()
@@ -261,13 +281,30 @@ public class AppsAdapter extends BaseAdapter
                                             }
 
                                             View fade = mainActivityContext.findViewById(R.id.fade_overlay);
+
                                             fade.animate()
                                                     .alpha(1f)
                                                     .setDuration(180)
                                                     .withEndAction(() -> {
 
-                                                        if (!mainActivityContext.openApp(currentApp)) {
-                                                            fade.animate().alpha(0f).setDuration(200).start();
+                                                        boolean opened = mainActivityContext.openApp(currentApp);
+
+                                                        if (opened) {
+                                                            fade.postDelayed(() -> {
+                                                                fade.animate().cancel();
+                                                                fade.setAlpha(0f);
+
+                                                                holder.layout.animate().cancel();
+                                                                holder.layout.setScaleX(1f);
+                                                                holder.layout.setScaleY(1f);
+                                                                holder.layout.setAlpha(1f);
+                                                            }, 0);
+                                                        } else {
+                                                            fade.animate()
+                                                                    .alpha(0f)
+                                                                    .setDuration(200)
+                                                                    .start();
+
                                                             holder.layout.setScaleX(1f);
                                                             holder.layout.setScaleY(1f);
                                                             holder.layout.setAlpha(1f);
@@ -280,6 +317,7 @@ public class AppsAdapter extends BaseAdapter
                             .start();
                 });
             });
+
             holder.layout.setOnLongClickListener(view -> {
                 showAppDetails(currentApp);
                 return false;
@@ -471,6 +509,7 @@ public class AppsAdapter extends BaseAdapter
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private void showAppDetails(ApplicationInfo actApp) {
         // Layout setzen
+        needsreload = false;
         AlertDialog.Builder builder = new AlertDialog.Builder(mainActivityContext);
         builder.setView(R.layout.dialog_app_details);
         AlertDialog dialog = builder.create();
@@ -487,11 +526,39 @@ public class AppsAdapter extends BaseAdapter
                 ViewGroup.LayoutParams.WRAP_CONTENT
         );
 
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false);
+
         // Info-Button öffnet App-Details-Einstellungen
         dialog.findViewById(R.id.info).setOnClickListener(view13 ->
                 mainActivityContext.openAppDetails(actApp.packageName)
         );
 
+        View statsButton = dialog.findViewById(R.id.stats);
+
+        statsButton.setVisibility(
+                PerGameStatsDialog.shouldShowStatsButton(mainActivityContext)
+                        ? View.VISIBLE
+                        : View.GONE
+        );
+
+        statsButton.setOnClickListener(v -> {
+            new PerGameStatsDialog(mainActivityContext, actApp.packageName, () -> {
+                statsButton.setVisibility(
+                        PerGameStatsDialog.shouldShowStatsButton(mainActivityContext)
+                                ? View.VISIBLE
+                                : View.GONE
+                );
+            }).show();
+        });
+
+        if (AbstractPlatform.isPicoHeadset() && AbstractPlatform.isPicoUltra() && AbstractPlatform.isVirtualRealityApp(actApp)) {
+            dialog.findViewById(R.id.perf).setOnClickListener(v -> {
+                mainActivityContext.openPerformancetool();
+            });
+        } else {
+            dialog.findViewById(R.id.perf).setVisibility(View.GONE);
+        }
         dialog.findViewById(R.id.info_text).setOnClickListener(view13 -> {
             String packageName = actApp.packageName;
             String store = "us";
@@ -503,7 +570,7 @@ public class AppsAdapter extends BaseAdapter
                 if (packageName.equals("com.BaggyG.JKXR_Companion_App")) {
                     packageName = "com.drbeef.jkxr";
                 }
-                if (packageName.equals("com.CactusStudios.Lambda1VR_Launcher")) {
+                if (packageName.equals("com.CactusStudios.Lambda1VR_Launcher") || packageName.equals("com.tobbe.lambda1vr_launcher")) {
                     packageName = "com.drbeef.lambda1vr";
                 }
                 if (packageName.equals("com.BaggyG.RazeXR_Launcher")) {
@@ -513,18 +580,50 @@ public class AppsAdapter extends BaseAdapter
             }
 
             if (!store.equals("zz")) {
-                String[] specialLibs = {
-                        "libovrplatformloader.so",
-                        "libOVRPlugin.so"
+                String[] requiredLibs = {
+                        "libovrplatformloader.so"
                 };
+
+                String[] picoLibs = {
+                        "libPxrPlatform.so",
+                        "libPvr_UnitySDK.so"
+                };
+
                 boolean allLibsExist = true;
 
-                for (String libName : specialLibs) {
+                for (String libName : requiredLibs) {
                     File libFile = new File(actApp.nativeLibraryDir, libName);
                     if (!libFile.exists()) {
                         allLibsExist = false;
                         break;
                     }
+                }
+
+                for (String picoLib : picoLibs) {
+                    File picoFile = new File(actApp.nativeLibraryDir, picoLib);
+                    if (picoFile.exists()) {
+                        allLibsExist = false;
+                        break;
+                    }
+                }
+
+                File ovrPlugin = new File(actApp.nativeLibraryDir, "libOVRPlugin.so");
+
+                boolean hasOculusVrCategory = false;
+                try {
+                    PackageManager pm = mainActivityContext.getPackageManager();
+
+                    Intent vrIntent = new Intent(Intent.ACTION_MAIN);
+                    vrIntent.addCategory("com.oculus.intent.category.VR");
+                    vrIntent.setPackage(actApp.packageName);
+
+                    List<ResolveInfo> matches = pm.queryIntentActivities(vrIntent, 0);
+                    hasOculusVrCategory = matches != null && !matches.isEmpty();
+                } catch (Exception ignored) {
+                }
+
+                if (!ovrPlugin.exists() && !hasOculusVrCategory) {
+                    allLibsExist = false;
                 }
 
                 if (allLibsExist) {
@@ -568,12 +667,15 @@ public class AppsAdapter extends BaseAdapter
             input.requestFocus();
             InputMethodManager imm = (InputMethodManager) mainActivityContext.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+            needsreload = true;
         });
 
         dialog.findViewById(R.id.ok).setOnClickListener(view12 -> {
             settingsProvider.setAppDisplayName(actApp, input.getText().toString());
-            mainActivityContext.reloadUI();
             dialog.dismiss();
+            if (needsreload) {
+                mainActivityContext.reloadUI();
+            }
         });
 
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
@@ -582,6 +684,16 @@ public class AppsAdapter extends BaseAdapter
         ImageView tempImage = dialog.findViewById(R.id.app_icon);
         AbstractPlatform platform = AbstractPlatform.getPlatform(actApp);
         platform.loadIcon(mainActivityContext, tempImage, actApp, name);
+
+        tempImage.post(() -> {
+            tempImage.setDrawingCacheEnabled(true);
+            Bitmap bitmap = Bitmap.createBitmap(tempImage.getDrawingCache());
+            tempImage.setDrawingCacheEnabled(false);
+
+            if (bitmap != null) {
+                applyGameColorBackground(dialog, bitmap);
+            }
+        });
 
         tempImage.setOnClickListener(view1 -> {
             iconDrawable = actApp.loadIcon(pm);
@@ -603,7 +715,7 @@ public class AppsAdapter extends BaseAdapter
         //App Größe anzeigen
         TextView sizeText = dialog.findViewById(R.id.size_show);
         showAppSize(mainActivityContext, actApp.packageName, sizeText);
-// show app version
+        // show app version
         String[] enginelibs = {
                 "libUE4.so",
                 "libUnreal.so",
@@ -658,15 +770,108 @@ public class AppsAdapter extends BaseAdapter
 
         if (versionText != null) {
             try {
-                String versionName = pm.getPackageInfo(actApp.packageName, 0).versionName;
-                versionText.setText("\uD83C\uDD9A  " + versionName);
+                android.content.pm.PackageInfo packageInfo =
+                        pm.getPackageInfo(actApp.packageName, 0);
+
+                String versionName = packageInfo.versionName;
+
+                long versionCode;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    versionCode = packageInfo.getLongVersionCode();
+                } else {
+                    versionCode = packageInfo.versionCode;
+                }
+
+                String updateTime = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+                        .format(new Date(packageInfo.lastUpdateTime));
+
+                versionText.setText("\uD83C\uDD9A   " + versionName + " (" + versionCode + ")  •  🗓️ " + updateTime);
+
             } catch (PackageManager.NameNotFoundException e) {
-                versionText.setText("\uD83C\uDD9A  ?");
+                versionText.setText("\uD83C\uDD9A   ?");
             }
         }
         if (engineText != null) {
             engineText.setText("\uD83D\uDE80  " + enginevar);
         }
+    }
+    public static int getDominantColor(Bitmap bitmap) {
+        Bitmap small = Bitmap.createScaledBitmap(bitmap, 32, 32, true);
+
+        long r = 0, g = 0, b = 0;
+        int count = 0;
+
+        for (int x = 0; x < small.getWidth(); x++) {
+            for (int y = 0; y < small.getHeight(); y++) {
+                int color = small.getPixel(x, y);
+                if (Color.alpha(color) < 128) continue;
+
+                r += Color.red(color);
+                g += Color.green(color);
+                b += Color.blue(color);
+                count++;
+            }
+        }
+
+        if (count == 0) return Color.rgb(45, 45, 45);
+
+        return Color.rgb(
+                (int) (r / count),
+                (int) (g / count),
+                (int) (b / count)
+        );
+    }
+
+    public static int darkenColor(int color, float factor) {
+        return Color.rgb(
+                Math.max(0, (int) (Color.red(color) * factor)),
+                Math.max(0, (int) (Color.green(color) * factor)),
+                Math.max(0, (int) (Color.blue(color) * factor))
+        );
+    }
+
+    private void applyGameColorBackground(AlertDialog dialog, Bitmap bitmap) {
+        int mainColor = getDominantColor(bitmap);
+        int darkColor = darkenColor(mainColor, 0.35f);
+
+        GradientDrawable bg = new GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[]{mainColor, darkColor}
+        );
+
+        bg.setCornerRadius(dpToPx(24));
+
+        View layout = dialog.findViewById(R.id.layout);
+        if (layout != null) {
+            layout.setBackground(bg);
+        }
+
+        tintDialogButton(dialog, R.id.info_text, mainColor);
+        tintDialogButton(dialog, R.id.ok, mainColor);
+    }
+
+    private void tintDialogButton(AlertDialog dialog, int viewId, int baseColor) {
+        View button = dialog.findViewById(viewId);
+        if (button == null) return;
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(darkenColor(baseColor, 0.55f));
+        bg.setCornerRadius(dpToPx(45));
+        bg.setStroke(dpToPx(1), Color.WHITE);
+
+        button.setBackground(bg);
+
+        if (button instanceof TextView) {
+            ((TextView) button).setTextColor(Color.WHITE);
+        }
+    }
+
+    private int dpToPx(int dp) {
+        return (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dp,
+                mainActivityContext.getResources().getDisplayMetrics()
+        );
     }
 
     public String getSelectedPackage() {

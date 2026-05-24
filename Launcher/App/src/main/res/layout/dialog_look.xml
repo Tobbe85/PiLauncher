@@ -171,6 +171,24 @@
 
         <LinearLayout
             android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:padding="10dp">
+
+            <Switch
+                android:id="@+id/checkbox_aspectratio"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="@string/aspect_ratio"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:trackTint="@color/switch_track_color" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:orientation="horizontal"
@@ -262,7 +280,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:text="💾 ACTION_USAGE_ACCESS_SETTINGS"
+                android:text="💾+📊 ACTION_USAGE_ACCESS_SETTINGS"
                 android:textAlignment="center"
                 android:textColor="@android:color/tertiary_text_light"
                 android:textSize="16sp" />
@@ -308,13 +326,95 @@
                 android:trackTint="@color/switch_track_color" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/clear_cache"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="#FF0000"
-            android:text="@string/clear_cache"
-            android:textColor="#000000" />
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:padding="10dp">
+
+            <Switch
+                android:id="@+id/checkbox_update"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:enabled="true"
+                android:text="@string/check_update"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:trackTint="@color/switch_track_color" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:padding="10dp">
+
+            <Switch
+                android:id="@+id/checkbox_launcher"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:enabled="true"
+                android:text="@string/tblauncher"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:trackTint="@color/switch_track_color" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:padding="10dp">
+
+            <Button
+                android:id="@+id/backup_button"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="#009688"
+                android:text="@string/backup_backup"
+                android:textColor="#000000" />
+
+            <Button
+                android:id="@+id/restore_button"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="#009688"
+                android:text="@string/backup_restore"
+                android:textColor="#000000" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:padding="10dp">
+
+            <Button
+                android:id="@+id/clear_cache"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="#FF0000"
+                android:text="@string/clear_cache"
+                android:textColor="#000000" />
+
+            <Button
+                android:id="@+id/reset_launcher"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="#FF0000"
+                android:text="@string/reset_launcher"
+                android:textColor="#000000" />
+        </LinearLayout>
 
     </LinearLayout>
 

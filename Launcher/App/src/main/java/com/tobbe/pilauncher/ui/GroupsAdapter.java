@@ -206,18 +206,20 @@ public class GroupsAdapter extends BaseAdapter {
         View filler = mainActivity.findViewById(R.id.filler);
         View topBar = mainActivity.findViewById(R.id.topBar);
         View pi = mainActivity.findViewById(R.id.pi);
-        View sort = mainActivity.findViewById(R.id.sort);
+        View sort = mainActivity.findViewById(R.id.sortButton);
         View update = mainActivity.findViewById(R.id.update);
         int gap = (topBar.getWidth()-pi.getWidth()-sort.getWidth()-(update!=null?update.getWidth():0))%getCount();
         filler.setMinimumWidth(gap);
         boolean isSelected = selectedGroups.contains(appGroups.get(position));
         if (isSelected) {
-            int[] colors = new int[] {Color.argb(255, 247, 223, 170), Color.TRANSPARENT};
-            GradientDrawable.Orientation orientation = GradientDrawable.Orientation.TOP_BOTTOM;
-            itemView.setBackground(new GradientDrawable(orientation, colors));
-            if(position==getCount()-1){
-                filler.setBackground(new GradientDrawable(orientation, colors));
+            int color = Color.argb(255, 247, 223, 170);
+
+            itemView.setBackgroundColor(color);
+
+            if (position == getCount() - 1) {
+                filler.setBackgroundColor(color);
             }
+
             if (isEditMode && (position < getCount() - 2)) {
                 menu.setVisibility(View.VISIBLE);
             } else {

@@ -1,4 +1,4 @@
-## 🚀 My Vision of PiLauncher - [Download Here](https://github.com/Tobbe85/PiLauncher/releases/download/2.1/PiLauncher_2.1.apk)
+## 🚀 My Vision of PiLauncher - [Download Here](https://github.com/Tobbe85/PiLauncher/releases/download/2.3/PiLauncher_2.3.apk)
 
 The original PiLauncher was already close to perfect — sleek, functional, and lightweight.  
 Still, I felt a few features were missing for users like myself.  
@@ -15,22 +15,39 @@ So I decided to expand on the original and add some useful enhancements.
 - 🧱 Indicates the **game engine**
 - 📁 Displays the **game size**
 - 🖼️ Added a **"Game Information"** button  
-  → Opens a page with description and screenshots  
+  → Opens a page with description and screenshots
 - ❌ Added a **"Delete Game"** button  
   → Uninstall games directly from PiLauncher
+- 📊 Added a **"Per Game Usage Stats"** button
+- 🚀 Added a **"Performance"** button *(Pico 4 Ultra only)*  
+  → Opens the Pico Performance Center
 
 ---
 
 #### 🏠 In the **Main Launcher View**:
 
-- 🕶️ Shows the **Pico model** in use
-- ⚙️ Displays the **Pico OS version**
+- 🕶️ Shows the **model** in use
+- ⚙️ Displays the **OS version**
 - 🤖 Shows the **Android version**
 - 💾 Displays **available storage space**
-- 🖼️ Fetches the needed **icons for Meta, Pico and Sidequest Apps in landscape, square and rounded**
-- 🖼️ Fallback app icons matches with your choosed icon style
-- 📥 Added a **"Docked Mode"** switch in Settings
-  → You can choose between normal window style and docked style
+- 🖼️ Fetches the needed **icons for Meta, Pico and SideQuest apps** in landscape, square and rounded styles
+- 🖼️ Fallback app icons now match your selected icon style
+- 📥 Added a **"Docked Mode"** switch in Settings *(Pico only)* 
+  → Choose between normal window style and docked style
+- 📊 Added an **"All Games Usage Stats"** button
+- 🎨 Improved the overall **visual appearance and UI polish**
+
+---
+
+#### ⚙️ Other Changes
+
+- 🛠️ Redesigned the **App Details** view
+- ✨ Start up animation
+- 🎮 Added mini launchers for **Team Beef** games:
+  - **JKXR**
+  - **Lambda1VR**
+  - **RazeXR**
+  - **QuestZDoom**
 
 ---
 
@@ -41,7 +58,7 @@ So I decided to expand on the original and add some useful enhancements.
 ![Screenshot](https://github.com/Tobbe85/PiLauncher/blob/main/MainLauncher.jpeg?raw=true)
 ![Screenshot](https://github.com/Tobbe85/PiLauncher/blob/main/AppDetails.jpeg?raw=true)
 
-### 📥 New Dock Mode for Pico Devices 📥
+### 📥 Dock Mode for Pico Devices 📥
 ![Screenshot](https://github.com/Tobbe85/PiLauncher/blob/main/LauncherDocked.jpeg?raw=true)
 
 ### These Icon Styles are available:

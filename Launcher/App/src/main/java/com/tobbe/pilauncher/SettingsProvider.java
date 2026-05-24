@@ -38,6 +38,7 @@ public class SettingsProvider
     public static final String KEY_EDITMODE = "KEY_EDITMODE";
     public static final String KEY_AUTORUN = "KEY_AUTORUN";
     public static final String KEY_NEAR = "KEY_NEAR";
+    public static final String KEY_ASPECTRATIO = "ASPECT_RATIO";
     public static final String KEY_PLATFORM_ANDROID = "KEY_PLATFORM_ANDROID";
     public static final String KEY_PLATFORM_PSP = "KEY_PLATFORM_PSP";
     public static final String KEY_PLATFORM_VR = "KEY_PLATFORM_VR";
@@ -45,6 +46,9 @@ public class SettingsProvider
     public static final String KEY_SORT_FIELD = "KEY_SORT_FIELD";
     public static final String KEY_SORT_ORDER = "KEY_SORT_ORDER";
     public static final String KEY_RECENTS = "KEY_RECENTS";
+    public static final String KEY_STATS_DECLINED = "stats_declined";
+    public static final String KEY_CHECK_UPDATE = "check_update";
+    public static final String KEY_INTEGRATED_LAUNCHER = "KEY_INTEGRATED_LAUNCHER";
 
     private final String KEY_APP_GROUPS = "prefAppGroups";
     private final String KEY_APP_LIST = "prefAppList";
